@@ -170,7 +170,7 @@ export default function GameMain() {
             <Coins className="w-4 h-4 text-amber-500" />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Presupuesto</span>
-              <span className="text-xs font-black">${budget.toLocaleString()}</span>
+              <span className="text-xs font-black">${budget.toLocaleString('es-ES')}</span>
             </div>
           </div>
 

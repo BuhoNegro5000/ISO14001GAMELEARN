@@ -1246,7 +1246,7 @@ const createCompanyState = (
       { id: 'ins_1', sender: 'inspector', text: 'Saludos. Inspector Ambiental del Estado. Realizo visitas preventivas de fiscalización. La mezcla ilegal de residuos peligrosos o descargas ácidas al río conllevan multas automáticas.', timestamp: '09:02' }
     ],
     ceo: [
-      { id: 'ceo_1', sender: 'ceo', text: `Bienvenido a bordo. Disponemos de $${initialBudget.toLocaleString()} de presupuesto inicial para este año. Logre la certificación ISO 14001:2026 sin descuidar los costos recurrentes ni elevar el riesgo operativo.`, timestamp: '09:03' }
+      { id: 'ceo_1', sender: 'ceo', text: `Bienvenido a bordo. Disponemos de $${initialBudget.toLocaleString('es-ES')} de presupuesto inicial para este año. Logre la certificación ISO 14001:2026 sin descuidar los costos recurrentes ni elevar el riesgo operativo.`, timestamp: '09:03' }
     ]
   },
   newsFeed: [
@@ -1645,7 +1645,7 @@ export const useGameStore = create<GameState>((set) => {
               id: `ev_${Date.now()}`,
               week: nextWeek,
               type: 'error',
-              message: `👮 FISCALIZACIÓN: Inspector ambiental detecta brecha legal en '${targetReg.regulation}'. Multa de $${penaltyCost.toLocaleString()} impuesta.`
+              message: `👮 FISCALIZACIÓN: Inspector ambiental detecta brecha legal en '${targetReg.regulation}'. Multa de $${penaltyCost.toLocaleString('es-ES')} impuesta.`
             });
           }
         } else if (Math.random() < 0.4) {

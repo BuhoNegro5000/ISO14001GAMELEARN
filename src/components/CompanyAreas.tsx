@@ -198,7 +198,7 @@ export default function CompanyAreas() {
                       <div className="flex flex-col">
                         <span className="text-[9px] text-slate-400 font-bold uppercase">Energía</span>
                         <span className="text-xs font-black text-slate-800 dark:text-white">
-                          {selectedArea.energyUsage.toLocaleString()} kWh
+                          {selectedArea.energyUsage.toLocaleString('es-ES')} kWh
                         </span>
                       </div>
                     </div>
@@ -210,7 +210,7 @@ export default function CompanyAreas() {
                       <div className="flex flex-col">
                         <span className="text-[9px] text-slate-400 font-bold uppercase">Agua</span>
                         <span className="text-xs font-black text-slate-800 dark:text-white">
-                          {selectedArea.waterUsage.toLocaleString()} m³
+                          {selectedArea.waterUsage.toLocaleString('es-ES')} m³
                         </span>
                       </div>
                     </div>
@@ -222,7 +222,7 @@ export default function CompanyAreas() {
                       <div className="flex flex-col">
                         <span className="text-[9px] text-slate-400 font-bold uppercase">Residuos</span>
                         <span className="text-xs font-black text-slate-800 dark:text-white">
-                          {selectedArea.wasteGenerated.toLocaleString()} kg
+                          {selectedArea.wasteGenerated.toLocaleString('es-ES')} kg
                         </span>
                       </div>
                     </div>
@@ -234,7 +234,7 @@ export default function CompanyAreas() {
                       <div className="flex flex-col">
                         <span className="text-[9px] text-slate-400 font-bold uppercase">Carbono</span>
                         <span className="text-xs font-black text-slate-800 dark:text-white">
-                          {selectedArea.emissions.toLocaleString()} kg
+                          {selectedArea.emissions.toLocaleString('es-ES')} kg
                         </span>
                       </div>
                     </div>
@@ -269,7 +269,7 @@ export default function CompanyAreas() {
                                 </p>
                               </div>
                               <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded px-2 py-0.5 whitespace-nowrap">
-                                Costo: ${ctrl.cost.toLocaleString()}
+                                Costo: ${ctrl.cost.toLocaleString('es-ES')}
                               </span>
                             </div>
 

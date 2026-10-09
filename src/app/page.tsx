@@ -9,6 +9,7 @@ import DocumentCenter from '@/components/DocumentCenter';
 import AiConsole from '@/components/AiConsole';
 import FinalAudit from '@/components/FinalAudit';
 import LearningGuide from '@/components/LearningGuide';
+import ProcessDiagram from '@/components/ProcessDiagram';
 
 // Icons
 import { 
@@ -104,6 +105,7 @@ export default function GameMain() {
 
   const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'iso' | 'docs' | 'ai' | 'audit'>('dashboard');
   const [isDark, setIsDark] = useState(true);
+  const [fontScale, setFontScale] = useState<'normal' | 'large'>('normal');
   const [showWelcome, setShowWelcome] = useState(true);
   const [welcomeStep, setWelcomeStep] = useState(0);
   const [showProfile, setShowProfile] = useState(true);
@@ -121,7 +123,7 @@ export default function GameMain() {
   }, [isDark]);
 
   const toggleDarkMode = () => {
-    setIsDark(!isDark);
+    setIsDark((current) => !current);
   };
 
   const handleNextWeek = () => {
@@ -162,7 +164,7 @@ export default function GameMain() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className={`${fontScale === 'large' ? 'text-[116%]' : 'text-[100%]'} min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200`}>
       {/* Top Navigation Bar */}
       <header className="border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
@@ -227,12 +229,26 @@ export default function GameMain() {
             </button>
           )}
 
-          <button 
-            onClick={toggleDarkMode}
-            className="hidden sm:block p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
+          <div className="hidden items-center gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => setFontScale((current) => current === 'normal' ? 'large' : 'normal')}
+              aria-pressed={fontScale === 'large'}
+              aria-label={fontScale === 'large' ? 'Usar tamaño de letra normal' : 'Aumentar tamaño de letra'}
+              title="Ajustar tamaño de letra"
+              className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-lime-200 dark:bg-slate-800 dark:text-slate-300"
+            >A<span className="text-base">A</span>
+            </button>
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              aria-pressed={isDark}
+              aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              className="rounded-xl bg-slate-100 p-2.5 text-slate-500 transition hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -382,12 +398,12 @@ export default function GameMain() {
         </aside>
 
         {/* Content area */}
-        <main className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-80px)]">
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-8 overflow-y-auto max-h-[calc(100vh-80px)]">
           {activeTab === 'dashboard' && (
             <div className="flex flex-col gap-6">
               <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-950 p-6 text-white shadow-xl shadow-emerald-950/10 md:p-7" aria-labelledby="mission-title">
                 <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[22px] border-lime-300/70" aria-hidden="true" />
-                <div className="absolute bottom-5 right-28 h-5 w-5 rotate-45 bg-coral-400" aria-hidden="true" />
+                <div className="absolute bottom-5 right-28 h-5 w-5 rotate-45 bg-[var(--color-coral)]" aria-hidden="true" />
                 <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
                   <div>
                     <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-lime-300">
@@ -414,6 +430,7 @@ export default function GameMain() {
               </section>
 
               <LearningGuide />
+              <ProcessDiagram />
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               

@@ -213,7 +213,19 @@ export default function DocumentCenter() {
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-[550px] items-stretch">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+        <div>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-lime-300">Sistema de información documentada</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">Document Center</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">Construye evidencia auditable: identifica el responsable, demuestra el requisito y mueve cada documento hasta su aprobación.</p>
+        </div>
+        <div className="flex gap-2 text-center">
+          <div className="rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-slate-900"><div className="text-lg font-black text-emerald-600">{documents.length}</div><div className="text-[9px] font-black uppercase tracking-wider text-slate-400">documentos</div></div>
+          <div className="rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-slate-900"><div className="text-lg font-black text-amber-500">{documents.filter((doc) => doc.status === 'approved_ceo').length}</div><div className="text-[9px] font-black uppercase tracking-wider text-slate-400">aprobados</div></div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-4 min-h-[620px]">
       
       {/* 1. Left Sidebar: Folders & Search */}
       <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col gap-4 shadow-3xs">
@@ -551,6 +563,7 @@ export default function DocumentCenter() {
         </div>
       )}
 
+      </div>
     </div>
   );
 }

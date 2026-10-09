@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f7f8ee;
   --foreground: #12352a;
@@ -12,6 +14,11 @@
 }
 
 html { background: var(--background); }
+
+[data-font-scale="large"] { font-size: 118%; }
+[data-font-scale="large"] .text-\[9px\] { font-size: 0.7rem; }
+[data-font-scale="large"] .text-\[10px\] { font-size: 0.78rem; }
+[data-font-scale="large"] .text-xs { font-size: 0.875rem; }
 
 .memphis-dot { position: absolute; height: 12px; width: 12px; border-radius: 999px; background: var(--color-coral); box-shadow: 22px 16px 0 var(--color-lime), 6px 42px 0 var(--color-lime); }
 .memphis-dot-lime { left: 8%; top: 16%; }

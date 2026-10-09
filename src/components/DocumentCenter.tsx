@@ -240,10 +240,10 @@ export default function DocumentCenter() {
           <div className="rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-slate-900"><div className="text-lg font-black text-amber-500">{documents.filter((doc) => doc.status === 'approved_ceo').length}</div><div className="text-[9px] font-black uppercase tracking-wider text-slate-400">aprobados</div></div>
         </div>
       </div>
-      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-4 min-h-[620px]">
+      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12 min-h-[620px]">
       
       {/* 1. Left Sidebar: Folders & Search */}
-      <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col gap-4 shadow-3xs">
+      <div className="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col gap-4 shadow-3xs">
         <div>
           <h3 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs tracking-wider uppercase px-2 mb-3">
             Explorador SGA (DMS)
@@ -340,7 +340,7 @@ export default function DocumentCenter() {
       </div>
 
       {/* 2. Middle Block: Split Screen Editor / Preview */}
-      <div className="lg:col-span-2 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-3xs">
+      <div className="lg:col-span-6 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-3xs">
         {selectedDoc ? (
           <div className="flex flex-col h-full">
             {/* Header Panel Toolbar */}
@@ -428,7 +428,7 @@ export default function DocumentCenter() {
               {/* Right pane: Visual sheet simulator */}
               <div className={`w-full ${isEditing ? 'hidden md:block' : 'w-full'} p-4 overflow-y-auto max-h-[480px] bg-slate-100 dark:bg-slate-950 flex justify-center items-start`}>
                 <div 
-                  className="paper-sheet w-full max-w-[420px] min-h-[500px] p-6 text-xs shadow-md border-t-4 transition-all duration-300 select-none animate-fade-in-up"
+                  className="paper-sheet w-full max-w-[680px] min-h-[560px] p-8 text-sm shadow-md border-t-4 transition-all duration-300 select-none animate-fade-in-up"
                   style={{ 
                     borderTopColor: currentCompanyId === 'metal' ? '#10b981' : 
                                     currentCompanyId === 'chem' ? '#8b5cf6' : 
@@ -453,7 +453,7 @@ export default function DocumentCenter() {
 
       {/* 3. Right Sidebar: Document Metadata Inspector */}
       {selectedDoc && docMetadata && (
-        <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between shadow-3xs animate-fade-in-up">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between shadow-3xs animate-fade-in-up">
           <div className="flex flex-col gap-4">
             <div>
               <h3 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs tracking-wider uppercase mb-1">

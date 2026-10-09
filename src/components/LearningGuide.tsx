@@ -59,7 +59,16 @@ export default function LearningGuide() {
 
       <div className="lg:col-span-2 grid gap-4 md:grid-cols-2">
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20">
-          <div className="flex gap-3"><Lightbulb className="h-5 w-5 shrink-0 text-amber-600" aria-hidden="true" /><div><h3 className="text-xs font-black uppercase tracking-wide text-amber-950 dark:text-amber-100">Método de juego</h3><p className="mt-1 text-xs leading-5 text-amber-900/80 dark:text-amber-100/70">Antes de confirmar una acción, formula la cadena: aspecto → impacto → riesgo → control → indicador → evidencia. Si falta un eslabón, la decisión queda incompleta.</p></div></div>
+          <div className="flex items-start gap-3"><Lightbulb className="mt-1 h-5 w-5 shrink-0 text-amber-600" aria-hidden="true" /><div className="min-w-0"><h3 className="text-xs font-black uppercase tracking-wide text-amber-950 dark:text-amber-100">Método de juego</h3><p className="mt-1 text-xs leading-5 text-amber-900/80 dark:text-amber-100/70">Construye la decisión completa antes de verificarla. Cada nodo responde una pregunta y produce una evidencia.</p></div></div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[['01','Aspecto','¿Qué actividad genera la interacción?'],['02','Impacto','¿Qué puede cambiar en el ambiente?'],['03','Riesgo','¿Qué tan grave y probable es?'],['04','Control','¿Qué barrera lo reduce?'],['05','Indicador','¿Cómo sabrás que funciona?'],['06','Evidencia','¿Qué registro presentas?']].map(([number,title,detail], index) => (
+              <div key={title} className="relative rounded-2xl border border-amber-300/70 bg-white/80 p-3 shadow-sm dark:border-amber-800 dark:bg-slate-950/40">
+                <div className="flex items-center justify-between"><span className="font-mono text-[10px] font-black text-amber-700 dark:text-amber-300">{number}</span>{index < 5 && <span className="hidden text-amber-400 lg:block" aria-hidden="true">→</span>}</div>
+                <strong className="mt-2 block text-[11px] font-black text-amber-950 dark:text-amber-100">{title}</strong>
+                <span className="mt-1 block text-[10px] leading-4 text-amber-900/70 dark:text-amber-100/60">{detail}</span>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="rounded-3xl border border-sky-200 bg-sky-50 p-4 dark:border-sky-900/50 dark:bg-sky-950/20">
           <div className="flex gap-3"><ShieldCheck className="h-5 w-5 shrink-0 text-sky-600" aria-hidden="true" /><div><h3 className="text-xs font-black uppercase tracking-wide text-sky-950 dark:text-sky-100">Nota de rigor</h3><p className="mt-1 text-xs leading-5 text-sky-900/80 dark:text-sky-100/70">La simulación entrena criterios de ISO 14001:2026. No reemplaza el texto oficial, la identificación legal de tu país ni una auditoría de certificación acreditada.</p></div></div>

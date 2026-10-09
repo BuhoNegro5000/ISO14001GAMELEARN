@@ -14,7 +14,7 @@ import {
   LayoutDashboard, Map, FolderEdit, Bot, Award, ChevronRight, 
   Sun, Moon, ShieldCheck, Scale, Coins, 
   TrendingUp, Calendar, HelpCircle, Play, FileText,
-  X, ChevronLeft, Info
+  X, ChevronLeft, Info, UserRound, BookOpen, Sparkles, Target, CheckCircle2
 } from 'lucide-react';
 
 const companyThemes = {
@@ -105,6 +105,9 @@ export default function GameMain() {
   const [isDark, setIsDark] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
   const [welcomeStep, setWelcomeStep] = useState(0);
+  const [showProfile, setShowProfile] = useState(true);
+  const [playerName, setPlayerName] = useState('');
+  const [profileRole, setProfileRole] = useState('');
 
   // Apply dark class to html document
   useEffect(() => {
@@ -156,6 +159,10 @@ export default function GameMain() {
 
         {/* Global Game stats */}
         <div className="flex flex-wrap gap-4 items-center justify-center">
+          <div className="hidden items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-2 sm:flex">
+            <UserRound className="h-4 w-4 text-emerald-700" />
+            <div className="flex flex-col"><span className="text-[9px] font-black uppercase tracking-wider text-emerald-700">Jugador</span><span className="text-xs font-black text-emerald-950">{playerName || 'Perfil nuevo'}</span></div>
+          </div>
           {/* Week counter */}
           <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-850 px-3.5 py-2 rounded-2xl">
             <Calendar className={`w-4 h-4 ${theme.text}`} />
@@ -545,8 +552,42 @@ export default function GameMain() {
         <span>ISO 14001:2026 (4a Edición)</span>
       </footer>
 
+      {/* Green Owl Labs onboarding */}
+      {showProfile && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center overflow-hidden bg-emerald-950/90 px-4 py-8 backdrop-blur-sm">
+          <div className="memphis-dot memphis-dot-lime" aria-hidden="true" />
+          <div className="memphis-star" aria-hidden="true">+</div>
+          <div className="relative grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-emerald-200/20 bg-[#f7f8ee] shadow-2xl md:grid-cols-[0.9fr_1.1fr]">
+            <div className="relative flex min-h-[420px] flex-col justify-between overflow-hidden bg-emerald-900 p-8 text-white md:p-12">
+              <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[28px] border-lime-400/80" aria-hidden="true" />
+              <div className="absolute bottom-12 right-10 h-7 w-7 rotate-45 bg-lime-400" aria-hidden="true" />
+              <Logo className="relative" />
+              <div className="relative mt-auto pt-20">
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-lime-300">Learning Lab 01</p>
+                <h1 className="mt-4 max-w-md text-4xl font-black leading-[0.98] tracking-tight md:text-6xl">Conviértete en arquitecto ambiental.</h1>
+                <p className="mt-5 max-w-sm text-sm leading-6 text-emerald-100">Aprende ISO 14001:2026 tomando decisiones reales, gestionando riesgos y llevando una organización hasta la certificación.</p>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center p-8 md:p-12">
+              <div className="mb-8 flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-300 text-emerald-950"><UserRound className="h-5 w-5" /></div>
+                <div><p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-700">Tu perfil de misión</p><p className="text-sm text-slate-500">Personaliza tu experiencia de aprendizaje</p></div>
+              </div>
+              <label className="text-xs font-black uppercase tracking-wider text-slate-700" htmlFor="player-name">¿Cómo te llamamos?</label>
+              <input id="player-name" value={playerName} onChange={(event) => setPlayerName(event.target.value)} placeholder="Tu nombre o alias" className="mt-2 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-900 outline-none transition focus:border-emerald-600" />
+              <label className="mt-5 text-xs font-black uppercase tracking-wider text-slate-700" htmlFor="player-role">Tu rol profesional</label>
+              <select id="player-role" value={profileRole} onChange={(event) => setProfileRole(event.target.value)} className="mt-2 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
+                <option value="">Selecciona una opción</option><option value="manager">Manager ambiental</option><option value="auditor">Auditor interno</option><option value="student">Estudiante</option><option value="leader">Líder de operaciones</option>
+              </select>
+              <button disabled={!playerName.trim() || !profileRole} onClick={() => setShowProfile(false)} className="mt-8 flex items-center justify-center gap-2 rounded-2xl bg-emerald-800 px-5 py-4 text-sm font-black text-white shadow-lg shadow-emerald-900/20 transition hover:-translate-y-0.5 hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40">Entrar al laboratorio <ChevronRight className="h-4 w-4" /></button>
+              <p className="mt-4 text-center text-[11px] leading-5 text-slate-400">Tu perfil se usa para personalizar el recorrido. No necesitas una cuenta para comenzar.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Wizard Modal */}
-      {showWelcome && (
+      {showWelcome && !showProfile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md px-4 py-6">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in-up">
             

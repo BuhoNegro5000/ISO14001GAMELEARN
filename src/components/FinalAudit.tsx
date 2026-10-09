@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useGameStore } from '@/store/gameStore';
 import { Award, ShieldAlert, BadgeCheck, RefreshCw, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -12,7 +12,7 @@ export default function FinalAudit() {
     climateRelevanceDetermined, documents
   } = store;
 
-  const [certCode] = useState(() => Math.floor(100000 + Math.random() * 900000));
+  const certCode = `${currentCompanyId.toUpperCase()}-${String(currentCompanyId.length * 137 + 2401).padStart(6, '0')}`;
 
   const policyDoc = documents.find(d => d.type === 'policy');
   const policySigned = policyDoc?.status === 'approved_ceo';

@@ -8,6 +8,7 @@ import IsoModules from '@/components/IsoModules';
 import DocumentCenter from '@/components/DocumentCenter';
 import AiConsole from '@/components/AiConsole';
 import FinalAudit from '@/components/FinalAudit';
+import LearningGuide from '@/components/LearningGuide';
 
 // Icons
 import { 
@@ -411,6 +412,8 @@ export default function GameMain() {
               <section className="grid gap-4 md:grid-cols-3" aria-label="Cómo jugar">
                 {[['01', 'Diagnostica', 'Lee el contexto y detecta aspectos significativos.'], ['02', 'Decide', 'Invierte presupuesto en controles con evidencia.'], ['03', 'Demuestra', 'Documenta, entrena y supera la auditoría.']].map(([number, title, detail]) => <div key={number} className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"><span className="font-mono text-xs font-black text-coral-500">{number}</span><div><h2 className="text-xs font-black uppercase tracking-wide text-slate-800 dark:text-white">{title}</h2><p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{detail}</p></div></div>)}
               </section>
+
+              <LearningGuide />
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               

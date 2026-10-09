@@ -14,7 +14,7 @@ import {
   LayoutDashboard, Map, FolderEdit, Bot, Award, ChevronRight, 
   Sun, Moon, ShieldCheck, Scale, Coins, 
   TrendingUp, Calendar, HelpCircle, Play, FileText,
-  X, ChevronLeft, Info, UserRound, BookOpen, Sparkles, Target, CheckCircle2
+  X, ChevronLeft, Info, UserRound, Target
 } from 'lucide-react';
 
 const companyThemes = {
@@ -142,6 +142,23 @@ export default function GameMain() {
 
   const activeCompany = companies[currentCompanyId];
   const theme = companyThemes[currentCompanyId] || companyThemes.metal;
+  const learningProgress = Math.min(100, Math.round(((week - 1) / 12) * 100));
+  const mission = certificationStatus === 'certified'
+    ? { eyebrow: 'Misión completada', title: 'Tu SGA está listo para sostener la certificación', detail: 'Revisa tu informe final y compara las decisiones que elevaron el desempeño.', tab: 'audit' as const, action: 'Ver informe final' }
+    : week <= 2
+      ? { eyebrow: 'Misión 01 · Contexto', title: 'Define el terreno antes de invertir', detail: 'Analiza el contexto, el cambio climático y el alcance del SGA en la pestaña Cláusulas.', tab: 'iso' as const, action: 'Abrir Cláusulas 4–10' }
+      : environmentalScore < 65
+        ? { eyebrow: 'Misión 02 · Impactos', title: 'Convierte riesgos en controles operativos', detail: 'Explora las áreas con mayor riesgo y activa controles que reduzcan impactos sin agotar el presupuesto.', tab: 'map' as const, action: 'Explorar mapa de planta' }
+        : legalCompliance < 100
+          ? { eyebrow: 'Misión 03 · Cumplimiento', title: 'Cierra las brechas legales antes de auditar', detail: 'Una certificación no se gana con promedios: cada requisito aplicable debe tener evidencia y seguimiento.', tab: 'iso' as const, action: 'Revisar requisitos' }
+          : { eyebrow: 'Misión 04 · Evidencia', title: 'Prepara tu organización para la auditoría', detail: 'Ordena documentos, entrena al equipo y usa el Consultor IA para ensayar preguntas de auditor.', tab: 'docs' as const, action: 'Preparar evidencias' };
+
+  const learningPhases = [
+    { label: 'Comprender', range: '4–5', done: week > 2 },
+    { label: 'Planificar', range: '6–7', done: week > 5 },
+    { label: 'Operar', range: '8', done: week > 7 },
+    { label: 'Mejorar', range: '9–10', done: certificationStatus === 'certified' }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
@@ -366,7 +383,36 @@ export default function GameMain() {
         {/* Content area */}
         <main className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-80px)]">
           {activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-6">
+              <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-950 p-6 text-white shadow-xl shadow-emerald-950/10 md:p-7" aria-labelledby="mission-title">
+                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[22px] border-lime-300/70" aria-hidden="true" />
+                <div className="absolute bottom-5 right-28 h-5 w-5 rotate-45 bg-coral-400" aria-hidden="true" />
+                <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-lime-300">
+                      <Target className="h-4 w-4" /> {mission.eyebrow}
+                    </div>
+                    <h1 id="mission-title" className="mt-3 max-w-2xl text-2xl font-black leading-tight tracking-tight md:text-3xl">{mission.title}</h1>
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-emerald-100">{mission.detail}</p>
+                    <button onClick={() => setActiveTab(mission.tab)} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-lime-300 px-4 py-3 text-xs font-black text-emerald-950 transition hover:-translate-y-0.5 hover:bg-lime-200">
+                      {mission.action} <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-emerald-100"><span>Ruta de aprendizaje</span><span>{learningProgress}%</span></div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-emerald-900"><div className="h-full rounded-full bg-lime-300 transition-all" style={{ width: `${learningProgress}%` }} /></div>
+                    <div className="mt-4 grid grid-cols-4 gap-2">
+                      {learningPhases.map((phase) => <div key={phase.label} className="flex flex-col gap-1"><span className={`h-2 rounded-full ${phase.done ? 'bg-lime-300' : 'bg-white/20'}`} /><span className="text-[9px] font-bold leading-tight text-emerald-100">{phase.label}</span><span className="text-[9px] text-emerald-300">§{phase.range}</span></div>)}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="grid gap-4 md:grid-cols-3" aria-label="Cómo jugar">
+                {[['01', 'Diagnostica', 'Lee el contexto y detecta aspectos significativos.'], ['02', 'Decide', 'Invierte presupuesto en controles con evidencia.'], ['03', 'Demuestra', 'Documenta, entrena y supera la auditoría.']].map(([number, title, detail]) => <div key={number} className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"><span className="font-mono text-xs font-black text-coral-500">{number}</span><div><h2 className="text-xs font-black uppercase tracking-wide text-slate-800 dark:text-white">{title}</h2><p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{detail}</p></div></div>)}
+              </section>
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               
               {/* Quick executive summary gauges */}
               <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -530,6 +576,7 @@ export default function GameMain() {
                     Ve al <strong>Mapa de Planta</strong>, implementa los controles operativos adecuados y luego habla con el <strong>Auditor IA</strong> en la Consola.
                   </p>
                 </div>
+              </div>
               </div>
             </div>
           )}

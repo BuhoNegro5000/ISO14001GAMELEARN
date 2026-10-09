@@ -150,6 +150,12 @@ export default function DocumentCenter() {
               max-width: 800px;
               margin: 0 auto;
             }
+            .document-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #064e3b; padding-bottom:16px; margin-bottom:18px; color:#064e3b; font-size:14px; letter-spacing:.04em; }
+            .document-header span { color:#64748b; font-size:10px; letter-spacing:.08em; }
+            .document-code { text-align:right; font-size:10px; color:#475569; }
+            .control-table { width:100%; border-collapse:collapse; margin:0 0 24px; font-size:10px; }
+            .control-table th { width:13%; background:#ecfdf5; color:#065f46; text-transform:uppercase; letter-spacing:.06em; }
+            .control-table td, .control-table th { border:1px solid #cbd5e1; padding:7px 8px; text-align:left; }
             h1 { color: #0f172a; font-size: 22px; border-bottom: 3px solid #10b981; padding-bottom: 8px; font-weight: 800; }
             h2 { color: #1e293b; font-size: 18px; margin-top: 24px; font-weight: 700; }
             table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; font-size: 12px; }
@@ -162,6 +168,15 @@ export default function DocumentCenter() {
           </style>
         </head>
         <body>
+          <header class="document-header">
+            <div><strong>GREEN OWL LABS · INNOVATION LABS</strong><br><span>Sistema de Gestión Ambiental · ISO 14001:2026</span></div>
+            <div class="document-code">${selectedDoc.type.toUpperCase()}<br>SGA-${week.toString().padStart(2, '0')}</div>
+          </header>
+          <table class="control-table">
+            <tr><th>Título</th><td>${selectedDoc.title}</td><th>Estado</th><td>${selectedDoc.status}</td></tr>
+            <tr><th>Responsable</th><td>${docMetadata?.owner || 'Responsable del SGA'}</td><th>Cláusula</th><td>${docMetadata?.clause || 'ISO 14001:2026'}</td></tr>
+            <tr><th>Versión</th><td>1.0</td><th>Fecha</th><td>${selectedDoc.lastUpdated}</td></tr>
+          </table>
           <div>${selectedDoc.content}</div>
           <div class="footer">
             Documento Certificado del SGA - ISO 14001:2026<br>

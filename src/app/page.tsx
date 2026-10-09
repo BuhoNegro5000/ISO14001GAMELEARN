@@ -563,7 +563,7 @@ export default function GameMain() {
               <div className="absolute bottom-12 right-10 h-7 w-7 rotate-45 bg-lime-400" aria-hidden="true" />
               <Logo className="relative" />
               <div className="relative mt-auto pt-20">
-                <p className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-lime-300">Learning Lab 01</p>
+                <p className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-lime-300">Learning Lab 02</p>
                 <h1 className="mt-4 max-w-md text-4xl font-black leading-[0.98] tracking-tight md:text-6xl">Conviértete en arquitecto ambiental.</h1>
                 <p className="mt-5 max-w-sm text-sm leading-6 text-emerald-100">Aprende ISO 14001:2026 tomando decisiones reales, gestionando riesgos y llevando una organización hasta la certificación.</p>
               </div>

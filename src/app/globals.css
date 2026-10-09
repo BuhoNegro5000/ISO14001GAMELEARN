@@ -2,6 +2,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@keyframes splash-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 :root {
   --background: #f7f8ee;
   --foreground: #12352a;

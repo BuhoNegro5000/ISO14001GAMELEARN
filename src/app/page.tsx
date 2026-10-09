@@ -11,6 +11,7 @@ import FinalAudit from '@/components/FinalAudit';
 import LearningGuide from '@/components/LearningGuide';
 import ProcessDiagram from '@/components/ProcessDiagram';
 import InteractiveTour from '@/components/InteractiveTour';
+import BrandSplash from '@/components/BrandSplash';
 
 // Icons
 import { 
@@ -112,7 +113,8 @@ export default function GameMain() {
   const [showProfile, setShowProfile] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [profileRole, setProfileRole] = useState('');
-  const [showTour, setShowTour] = useState(true);
+  const [showTour, setShowTour] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   // Apply dark class to html document
   useEffect(() => {
@@ -167,6 +169,7 @@ export default function GameMain() {
 
   return (
     <div data-font-scale={fontScale} className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      {showSplash && <BrandSplash onComplete={() => setShowSplash(false)} />}
       {/* Top Navigation Bar */}
       <header className="border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">

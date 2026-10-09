@@ -96,7 +96,10 @@ export const getInitialChangeSteps = (companyId: 'metal' | 'chem' | 'power' | 'm
                 : "Actualizar las curvas de ruido en el gestor documental e inventariar Scope 3."
     }
   ];
-  return [steps[2], steps[4], steps[0], steps[3], steps[1]];
+  return [steps[0], steps[1], steps[2], steps[3], steps[4]].map((step, index) => ({
+    ...step,
+    order: index + 1
+  }));
 };
 
 export default function IsoModules() {
@@ -270,6 +273,7 @@ export default function IsoModules() {
   const [cl6Severity, setCl6Severity] = useState(3);
   const [cl6Probability, setCl6Probability] = useState(3);
   const [cl6Feedback, setCl6Feedback] = useState<string | null>(null);
+  const [cl6AwaitingNext, setCl6AwaitingNext] = useState(false);
   const [cl6SuccessCount, setCl6SuccessCount] = useState(() => {
     const matrixDoc = documents.find(d => d.type === 'aspect_matrix');
     return (matrixDoc && matrixDoc.status === 'signed') ? 3 : 0;
@@ -521,12 +525,7 @@ export default function IsoModules() {
       setCl6SuccessCount(prev => prev + 1);
 
       if (cl6Scenario < 3) {
-        setTimeout(() => {
-          setCl6Scenario(prev => prev + 1);
-          setCl6Aspect('');
-          setCl6Impact('');
-          setCl6Feedback(null);
-        }, 3000);
+        setCl6AwaitingNext(true);
       } else {
         const companyName = currentCompanyId === 'metal' ? 'EnviroPro' : 
                             currentCompanyId === 'chem' ? 'BioChem' : 
@@ -540,13 +539,8 @@ export default function IsoModules() {
           store.updateDocument(matrixDoc.id, matrixDoc.content, 'signed');
         }
         
-        // Transition to Clause 6.3 Change Management
-        setTimeout(() => {
-          setCl6Scenario(4);
-          setCl6Aspect('');
-          setCl6Impact('');
-          setCl6Feedback(null);
-        }, 3000);
+        // La transición queda bajo control del jugador para conservar el feedback y permitir revisar el razonamiento.
+        setCl6AwaitingNext(true);
       }
     } else {
       setCl6Feedback("Revisa el mapeo. El Aspecto es la causa operativa y el Impacto es el cambio real en el medio ambiente.");
@@ -1380,7 +1374,20 @@ export default function IsoModules() {
                       </div>
                     )}
 
-                    <div className="flex justify-end mt-2">
+                    <div className="flex flex-wrap justify-end gap-2 mt-2">
+                      {cl6AwaitingNext && (
+                        <button type="button" onClick={() => {
+                          setCl6Scenario((value) => value < 3 ? value + 1 : 4);
+                          setCl6Aspect('');
+                          setCl6Impact('');
+                          setCl6Feedback(null);
+                          setCl6AwaitingNext(false);
+                        }} className="rounded-xl bg-lime-300 px-4 py-2 text-xs font-black text-emerald-950 hover:bg-lime-200">
+                          {cl6Scenario < 3 ? `Continuar al escenario ${cl6Scenario + 1}` : 'Continuar a Gestión del Cambio'}
+                        </button>
+                      )}
+
+                      <div className="flex justify-end">
                       <button
                         onClick={handleVerifyAspectLab}
                         disabled={!cl6Aspect || !cl6Impact}
@@ -1390,6 +1397,7 @@ export default function IsoModules() {
                       >
                         Evaluar Significancia (Sev x Prob)
                       </button>
+                      </div>
                     </div>
                   </div>
                 );

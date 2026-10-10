@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getAuditRequirements, isAuditReady } from '@/lib/auditRequirements';
 import {
   initialAreasMine,
   initialLegalMatrixMine,
@@ -140,6 +141,7 @@ export interface GameState extends Omit<CompanyState, 'id' | 'name' | 'sector' |
   xp: number;
   level: number;
   badges: string[];
+  claimedRewards: string[];
   
   // Multi-company architecture
   currentCompanyId: 'metal' | 'chem' | 'power' | 'mine' | 'oil' | 'airport';
@@ -163,6 +165,7 @@ export interface GameState extends Omit<CompanyState, 'id' | 'name' | 'sector' |
   conductTraining: (cost: number) => void;
   investigateIncident: (id: string, correctiveAction: string) => void;
   completeChangeManagement: () => void;
+  awardXp: (key: string, amount: number) => boolean;
   runFinalAudit: () => void;
   resetGame: () => void;
 }
@@ -380,7 +383,7 @@ const initialAreasMetal = (): Record<string, CompanyArea> => ({
   off: {
     id: 'off',
     name: 'Oficinas Administrativas',
-    description: 'Ventas, Contabilidad y Finanzas de la organización.',
+    description: 'Ventas, Contabilidad y Finanzas de la organizaci��n.',
     category: 'admin',
     energyUsage: 4500,
     waterUsage: 90,
@@ -1246,7 +1249,7 @@ const createCompanyState = (
       { id: 'ins_1', sender: 'inspector', text: 'Saludos. Inspector Ambiental del Estado. Realizo visitas preventivas de fiscalización. La mezcla ilegal de residuos peligrosos o descargas ácidas al río conllevan multas automáticas.', timestamp: '09:02' }
     ],
     ceo: [
-      { id: 'ceo_1', sender: 'ceo', text: `Bienvenido a bordo. Disponemos de $${initialBudget.toLocaleString()} de presupuesto inicial para este año. Logre la certificación ISO 14001:2026 sin descuidar los costos recurrentes ni elevar el riesgo operativo.`, timestamp: '09:03' }
+      { id: 'ceo_1', sender: 'ceo', text: `Bienvenido a bordo. Disponemos de $${initialBudget.toLocaleString('es-ES')} de presupuesto inicial para este año. Logre la certificación ISO 14001:2026 sin descuidar los costos recurrentes ni elevar el riesgo operativo.`, timestamp: '09:03' }
     ]
   },
   newsFeed: [
@@ -1395,10 +1398,26 @@ export const useGameStore = create<GameState>((set) => {
 
     // Global player metrics
     xp: 0,
-    level: 1,
-    badges: [],
+  level: 1,
+  badges: [],
+  claimedRewards: [],
 
-    // Action: Switch Active Company
+  awardXp: (key, amount) => {
+    let granted = false;
+    set((state) => {
+      if (state.claimedRewards.includes(`${state.currentCompanyId}:${key}`)) return {};
+      granted = true;
+      const newXp = state.xp + amount;
+      return {
+        xp: newXp,
+        level: Math.max(state.level, Math.floor(newXp / 1000) + 1),
+        claimedRewards: [...state.claimedRewards, `${state.currentCompanyId}:${key}`]
+      };
+    });
+    return granted;
+  },
+  
+  // Action: Switch Active Company
     switchCompany: (companyId: 'metal' | 'chem' | 'power' | 'mine' | 'oil' | 'airport') => set((state) => {
       if (state.currentCompanyId === companyId) return {};
 
@@ -1645,7 +1664,7 @@ export const useGameStore = create<GameState>((set) => {
               id: `ev_${Date.now()}`,
               week: nextWeek,
               type: 'error',
-              message: `👮 FISCALIZACIÓN: Inspector ambiental detecta brecha legal en '${targetReg.regulation}'. Multa de $${penaltyCost.toLocaleString()} impuesta.`
+              message: `👮 FISCALIZACIÓN: Inspector ambiental detecta brecha legal en '${targetReg.regulation}'. Multa de $${penaltyCost.toLocaleString('es-ES')} impuesta.`
             });
           }
         } else if (Math.random() < 0.4) {
@@ -2250,23 +2269,8 @@ export const useGameStore = create<GameState>((set) => {
     }),
 
     runFinalAudit: () => set((state) => {
-      const policyDoc = state.documents.find(d => d.type === 'policy');
-      const policySigned = policyDoc?.status === 'approved_ceo';
-      const allCompliant = state.legalMatrix.every(l => l.status === 'compliant');
-      const aspectMatrixValid = state.documents.find(d => d.type === 'aspect_matrix')?.status !== 'draft';
-      const trainingComplete = state.awarenessScore >= 60;
-      const climateDetermined = state.climateRelevanceDetermined;
-      const changeMgmtComplete = state.changeManagementCompleted; // Clause 6.3 check
-
-      const issuesCount = state.incidents.filter(i => i.status === 'open').length;
-
-      let success = false;
-      let status: GameState['certificationStatus'] = 'failed';
-
-      if (policySigned && allCompliant && aspectMatrixValid && trainingComplete && climateDetermined && changeMgmtComplete && issuesCount === 0 && state.environmentalScore >= 65) {
-        success = true;
-        status = 'certified';
-      }
+      const success = isAuditReady(getAuditRequirements(state));
+      const status: GameState['certificationStatus'] = success ? 'certified' : 'failed';
 
       const feedMsg = success 
         ? `🏆 AUDITORÍA CERTIFICADA: ¡Felicidades! ${state.companies[state.currentCompanyId].name} obtuvo la certificación ISO 14001:2026.`
@@ -2337,8 +2341,9 @@ export const useGameStore = create<GameState>((set) => {
         // Reset player progression
         xp: 0,
         level: 1,
-        badges: []
-      };
-    })
+  badges: [],
+  claimedRewards: []
+  };
+  })
   };
 });

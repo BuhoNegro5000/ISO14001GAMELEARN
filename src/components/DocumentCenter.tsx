@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
+import DocumentLibrary from '@/components/DocumentLibrary';
+import { documentFormats } from '@/lib/documentFormats';
 import { 
   FileText, Edit3, Download, Eye, CheckCircle, Save, FileSpreadsheet,
   Folder, FolderOpen, Search, Clock, Award
@@ -85,6 +87,45 @@ const folderStructure = [
 ];
 
 export default function DocumentCenter() {
+  const [tab, setTab] = useState<'library' | 'mine'>('library');
+  const tabs = [
+    { id: 'library' as const, label: `Biblioteca de formatos (${documentFormats.length})` },
+    { id: 'mine' as const, label: 'Mis documentos del SGA' },
+  ];
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+        <div>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-lime-300">Sistema de información documentada · Cláusula 7.5</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">Document Center</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            Formatos profesionales con encabezado, código, control de versiones y firmas. Llénalos, imprime en PDF o descarga en Word y Excel.
+          </p>
+        </div>
+        <div role="tablist" aria-label="Secciones del centro documental" className="flex gap-1 rounded-2xl bg-white p-1 shadow-sm dark:bg-slate-900">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => setTab(t.id)}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
+                tab === t.id ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {tab === 'library' ? <DocumentLibrary /> : <MyDocuments />}
+    </div>
+  );
+}
+
+function MyDocuments() {
   const { documents, updateDocument, week, currentCompanyId } = useGameStore();
   const [selectedDocId, setSelectedDocId] = useState<string>(documents[0]?.id || '');
   const [isEditing, setIsEditing] = useState(false);
@@ -150,6 +191,12 @@ export default function DocumentCenter() {
               max-width: 800px;
               margin: 0 auto;
             }
+            .document-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #064e3b; padding-bottom:16px; margin-bottom:18px; color:#064e3b; font-size:14px; letter-spacing:.04em; }
+            .document-header span { color:#64748b; font-size:10px; letter-spacing:.08em; }
+            .document-code { text-align:right; font-size:10px; color:#475569; }
+            .control-table { width:100%; border-collapse:collapse; margin:0 0 24px; font-size:10px; }
+            .control-table th { width:13%; background:#ecfdf5; color:#065f46; text-transform:uppercase; letter-spacing:.06em; }
+            .control-table td, .control-table th { border:1px solid #cbd5e1; padding:7px 8px; text-align:left; }
             h1 { color: #0f172a; font-size: 22px; border-bottom: 3px solid #10b981; padding-bottom: 8px; font-weight: 800; }
             h2 { color: #1e293b; font-size: 18px; margin-top: 24px; font-weight: 700; }
             table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; font-size: 12px; }
@@ -162,6 +209,15 @@ export default function DocumentCenter() {
           </style>
         </head>
         <body>
+          <header class="document-header">
+            <div><strong>GREEN OWL LABS · INNOVATION LABS</strong><br><span>Sistema de Gestión Ambiental · ISO 14001:2026</span></div>
+            <div class="document-code">${selectedDoc.type.toUpperCase()}<br>SGA-${week.toString().padStart(2, '0')}</div>
+          </header>
+          <table class="control-table">
+            <tr><th>Título</th><td>${selectedDoc.title}</td><th>Estado</th><td>${selectedDoc.status}</td></tr>
+            <tr><th>Responsable</th><td>${docMetadata?.owner || 'Responsable del SGA'}</td><th>Cláusula</th><td>${docMetadata?.clause || 'ISO 14001:2026'}</td></tr>
+            <tr><th>Versión</th><td>1.0</td><th>Fecha</th><td>${selectedDoc.lastUpdated}</td></tr>
+          </table>
           <div>${selectedDoc.content}</div>
           <div class="footer">
             Documento Certificado del SGA - ISO 14001:2026<br>
@@ -213,10 +269,22 @@ export default function DocumentCenter() {
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-[550px] items-stretch">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+        <div>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-lime-300">Sistema de información documentada</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">Document Center</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">Construye evidencia auditable: identifica el responsable, demuestra el requisito y mueve cada documento hasta su aprobación.</p>
+        </div>
+        <div className="flex gap-2 text-center">
+          <div className="rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-slate-900"><div className="text-lg font-black text-emerald-600">{documents.length}</div><div className="text-[9px] font-black uppercase tracking-wider text-slate-400">documentos</div></div>
+          <div className="rounded-2xl bg-white px-3 py-2 shadow-sm dark:bg-slate-900"><div className="text-lg font-black text-amber-500">{documents.filter((doc) => doc.status === 'approved_ceo').length}</div><div className="text-[9px] font-black uppercase tracking-wider text-slate-400">aprobados</div></div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12 min-h-[620px]">
       
       {/* 1. Left Sidebar: Folders & Search */}
-      <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col gap-4 shadow-3xs">
+      <div className="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 flex flex-col gap-4 shadow-3xs">
         <div>
           <h3 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs tracking-wider uppercase px-2 mb-3">
             Explorador SGA (DMS)
@@ -247,7 +315,7 @@ export default function DocumentCenter() {
                   className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl text-left text-xs transition-all ${
                     doc.id === selectedDocId
                       ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/10'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <FileText className="w-4 h-4 shrink-0" />
@@ -270,7 +338,7 @@ export default function DocumentCenter() {
                 <div key={folder.name} className="flex flex-col gap-0.5">
                   <button
                     onClick={() => toggleFolder(folder.name)}
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-350 text-xs font-black text-left cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-black text-left cursor-pointer transition-colors"
                   >
                     <span className="flex items-center gap-2">
                       {isExpanded ? <FolderOpen className="w-4 h-4 text-amber-500" /> : <Folder className="w-4 h-4 text-amber-500" />}
@@ -280,7 +348,7 @@ export default function DocumentCenter() {
                   </button>
 
                   {isExpanded && (
-                    <div className="flex flex-col gap-1 pl-4 border-l border-slate-100 dark:border-slate-850 ml-3.5 mt-0.5">
+                    <div className="flex flex-col gap-1 pl-4 border-l border-slate-100 dark:border-slate-800 ml-3.5 mt-0.5">
                       {folderDocs.map(doc => {
                         const isSelected = doc.id === selectedDocId;
                         return (
@@ -289,8 +357,8 @@ export default function DocumentCenter() {
                             onClick={() => { setSelectedDocId(doc.id); setIsEditing(false); }}
                             className={`w-full flex items-center justify-between p-2 rounded-xl text-left text-[11px] transition-all border border-transparent ${
                               isSelected
-                                ? 'bg-slate-100 dark:bg-slate-850 border-slate-200/60 dark:border-slate-750 text-slate-850 dark:text-white font-extrabold shadow-3xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/40'
+                                ? 'bg-slate-100 dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 text-slate-800 dark:text-white font-extrabold shadow-3xs'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
                             }`}
                           >
                             <span className="flex items-center gap-2 truncate">
@@ -313,11 +381,11 @@ export default function DocumentCenter() {
       </div>
 
       {/* 2. Middle Block: Split Screen Editor / Preview */}
-      <div className="lg:col-span-2 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-3xs">
+      <div className="lg:col-span-6 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-3xs">
         {selectedDoc ? (
           <div className="flex flex-col h-full">
             {/* Header Panel Toolbar */}
-            <div className="border-b border-slate-150 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-950 flex justify-between items-center gap-2">
+            <div className="border-b border-slate-100 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-950 flex justify-between items-center gap-2">
               <div className="overflow-hidden">
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs truncate">
                   {selectedDoc.title}
@@ -339,7 +407,7 @@ export default function DocumentCenter() {
                 ) : (
                   <button
                     onClick={startEdit}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
                   >
                     <Edit3 className="w-3.5 h-3.5" /> Editar
                   </button>
@@ -347,7 +415,7 @@ export default function DocumentCenter() {
 
                 <button
                   onClick={handleExportPDF}
-                  className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-655 dark:text-slate-350 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-655 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
                   title="Imprimir / Exportar a PDF"
                 >
                   <Download className="w-3.5 h-3.5" /> PDF
@@ -356,7 +424,7 @@ export default function DocumentCenter() {
                 {(selectedDoc.type === 'aspect_matrix' || selectedDoc.type === 'legal_matrix') && (
                   <button
                     onClick={handleExportExcel}
-                    className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-655 dark:text-slate-350 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-655 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
                     title="Exportar Matriz a CSV/Excel"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" /> CSV
@@ -369,7 +437,7 @@ export default function DocumentCenter() {
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-[400px]">
               
               {/* Left pane: Text Input (HTML editor) */}
-              <div className={`w-full md:w-1/2 p-4 border-r border-slate-100 dark:border-slate-850 flex flex-col gap-2 bg-slate-50 dark:bg-slate-950 ${isEditing ? 'block' : 'hidden md:flex bg-slate-50/50'}`}>
+              <div className={`w-full md:w-1/2 p-4 border-r border-slate-100 dark:border-slate-800 flex flex-col gap-2 bg-slate-50 dark:bg-slate-950 ${isEditing ? 'block' : 'hidden md:flex bg-slate-50/50'}`}>
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                     {isEditing ? 'Editor de Contenido' : 'Editor en Reposo'}
@@ -401,7 +469,7 @@ export default function DocumentCenter() {
               {/* Right pane: Visual sheet simulator */}
               <div className={`w-full ${isEditing ? 'hidden md:block' : 'w-full'} p-4 overflow-y-auto max-h-[480px] bg-slate-100 dark:bg-slate-950 flex justify-center items-start`}>
                 <div 
-                  className="paper-sheet w-full max-w-[420px] min-h-[500px] p-6 text-xs shadow-md border-t-4 transition-all duration-300 select-none animate-fade-in-up"
+                  className="paper-sheet w-full max-w-[680px] min-h-[560px] p-8 text-sm shadow-md border-t-4 transition-all duration-300 select-none animate-fade-in-up"
                   style={{ 
                     borderTopColor: currentCompanyId === 'metal' ? '#10b981' : 
                                     currentCompanyId === 'chem' ? '#8b5cf6' : 
@@ -426,7 +494,7 @@ export default function DocumentCenter() {
 
       {/* 3. Right Sidebar: Document Metadata Inspector */}
       {selectedDoc && docMetadata && (
-        <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between shadow-3xs animate-fade-in-up">
+        <div className="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col justify-between shadow-3xs animate-fade-in-up">
           <div className="flex flex-col gap-4">
             <div>
               <h3 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs tracking-wider uppercase mb-1">
@@ -438,7 +506,7 @@ export default function DocumentCenter() {
             </div>
 
             {/* General Info */}
-            <div className="flex flex-col gap-2.5 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/50 dark:border-slate-850">
+            <div className="flex flex-col gap-2.5 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/50 dark:border-slate-800">
               <div className="flex flex-col">
                 <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wide">Cláusula ISO</span>
                 <span className="text-xs font-black text-slate-700 dark:text-slate-200 flex items-center gap-1.5 mt-0.5">
@@ -467,7 +535,7 @@ export default function DocumentCenter() {
                 {docMetadata.sdgs.map(sdg => (
                   <span 
                     key={sdg} 
-                    className="text-[9px] font-black px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/10 text-emerald-600 dark:text-emerald-450 rounded-xl"
+                    className="text-[9px] font-black px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl"
                   >
                     {sdg}
                   </span>
@@ -525,7 +593,7 @@ export default function DocumentCenter() {
           </div>
 
           {/* Workflow actions button */}
-          <div className="border-t border-slate-100 dark:border-slate-850 pt-4 mt-4">
+          <div className="border-t border-slate-100 dark:border-slate-800 pt-4 mt-4">
             {selectedDoc.status === 'draft' && (
               <button
                 onClick={() => changeStatus('under_review')}
@@ -551,6 +619,7 @@ export default function DocumentCenter() {
         </div>
       )}
 
+      </div>
     </div>
   );
 }

@@ -8,13 +8,21 @@ import IsoModules from '@/components/IsoModules';
 import DocumentCenter from '@/components/DocumentCenter';
 import AiConsole from '@/components/AiConsole';
 import FinalAudit from '@/components/FinalAudit';
+import LearningGuide from '@/components/LearningGuide';
+import ProcessDiagram from '@/components/ProcessDiagram';
+import InteractiveTour from '@/components/InteractiveTour';
+import BrandSplash from '@/components/BrandSplash';
+import ProfileSetup, { getInitials } from '@/components/ProfileSetup';
+import ProfileView from '@/components/ProfileView';
+import { avatarClasses, useProfileStore } from '@/store/profileStore';
+import type { GameTab } from '@/lib/auditRequirements';
 
 // Icons
 import { 
   LayoutDashboard, Map, FolderEdit, Bot, Award, ChevronRight, 
   Sun, Moon, ShieldCheck, Scale, Coins, 
   TrendingUp, Calendar, HelpCircle, Play, FileText,
-  X, ChevronLeft, Info
+  X, ChevronLeft, Info, UserRound, Target
 } from 'lucide-react';
 
 const companyThemes = {
@@ -101,10 +109,24 @@ export default function GameMain() {
     newsFeed, tickWeek, certificationStatus 
   } = store;
 
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'map' | 'iso' | 'docs' | 'ai' | 'audit'>('dashboard');
+  const [activeTab, setActiveTab] = useState<GameTab>('dashboard');
   const [isDark, setIsDark] = useState(true);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [fontScale, setFontScale] = useState<'normal' | 'large'>('normal');
+  const [showWelcome, setShowWelcome] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState(0);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const profile = useProfileStore((state) => state.profile);
+
+  useEffect(() => {
+    void useProfileStore.persist.rehydrate();
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    if (!useProfileStore.getState().profile) setShowProfile(true);
+  };
 
   // Apply dark class to html document
   useEffect(() => {
@@ -117,7 +139,7 @@ export default function GameMain() {
   }, [isDark]);
 
   const toggleDarkMode = () => {
-    setIsDark(!isDark);
+    setIsDark((current) => !current);
   };
 
   const handleNextWeek = () => {
@@ -139,16 +161,34 @@ export default function GameMain() {
 
   const activeCompany = companies[currentCompanyId];
   const theme = companyThemes[currentCompanyId] || companyThemes.metal;
+  const learningProgress = Math.min(100, Math.round(((week - 1) / 12) * 100));
+  const mission = certificationStatus === 'certified'
+    ? { eyebrow: 'Misión completada', title: 'Tu SGA está listo para sostener la certificación', detail: 'Revisa tu informe final y compara las decisiones que elevaron el desempeño.', tab: 'audit' as const, action: 'Ver informe final' }
+    : week <= 2
+      ? { eyebrow: 'Misión 01 · Contexto', title: 'Define el terreno antes de invertir', detail: 'Analiza el contexto, el cambio climático y el alcance del SGA en la pestaña Cláusulas.', tab: 'iso' as const, action: 'Abrir Cláusulas 4–10' }
+      : environmentalScore < 65
+        ? { eyebrow: 'Misión 02 · Impactos', title: 'Convierte riesgos en controles operativos', detail: 'Explora las áreas con mayor riesgo y activa controles que reduzcan impactos sin agotar el presupuesto.', tab: 'map' as const, action: 'Explorar mapa de planta' }
+        : legalCompliance < 100
+          ? { eyebrow: 'Misión 03 · Cumplimiento', title: 'Cierra las brechas legales antes de auditar', detail: 'Una certificación no se gana con promedios: cada requisito aplicable debe tener evidencia y seguimiento.', tab: 'iso' as const, action: 'Revisar requisitos' }
+          : { eyebrow: 'Misión 04 · Evidencia', title: 'Prepara tu organización para la auditoría', detail: 'Ordena documentos, entrena al equipo y usa el Consultor IA para ensayar preguntas de auditor.', tab: 'docs' as const, action: 'Preparar evidencias' };
+
+  const learningPhases = [
+    { label: 'Comprender', range: '4–5', done: week > 2 },
+    { label: 'Planificar', range: '6–7', done: week > 5 },
+    { label: 'Operar', range: '8', done: week > 7 },
+    { label: 'Mejorar', range: '9–10', done: certificationStatus === 'certified' }
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div data-font-scale={fontScale} className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      {showSplash && <BrandSplash onComplete={handleSplashComplete} />}
       {/* Top Navigation Bar */}
       <header className="border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <Logo />
           <button 
             onClick={toggleDarkMode}
-            className="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer"
+            className="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 cursor-pointer"
           >
             {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
@@ -156,8 +196,24 @@ export default function GameMain() {
 
         {/* Global Game stats */}
         <div className="flex flex-wrap gap-4 items-center justify-center">
+          <button
+            type="button"
+            onClick={() => (profile ? setActiveTab('profile') : setShowProfile(true))}
+            aria-label={profile ? `Abrir perfil de ${profile.name}` : 'Crear perfil'}
+            className="hidden items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 transition hover:border-emerald-400 dark:border-emerald-500/40 dark:bg-emerald-950/50 dark:hover:border-emerald-400 sm:flex"
+          >
+            {profile ? (
+              <span className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black ${avatarClasses[profile.avatar]}`}>{getInitials(profile.name)}</span>
+            ) : (
+              <UserRound className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+            )}
+            <span className="flex flex-col text-left">
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300">Nivel {level}</span>
+              <span className="max-w-[9rem] truncate text-xs font-black text-emerald-950 dark:text-emerald-50">{profile?.name ?? 'Crear perfil'}</span>
+            </span>
+          </button>
           {/* Week counter */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-850 px-3.5 py-2 rounded-2xl">
+          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Calendar className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Turno / Tiempo</span>
@@ -166,16 +222,16 @@ export default function GameMain() {
           </div>
 
           {/* Budget */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-850 px-3.5 py-2 rounded-2xl">
+          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Coins className="w-4 h-4 text-amber-500" />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Presupuesto</span>
-              <span className="text-xs font-black">${budget.toLocaleString()}</span>
+              <span className="text-xs font-black">${budget.toLocaleString('es-ES')}</span>
             </div>
           </div>
 
           {/* Legal Compliance */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-850 px-3.5 py-2 rounded-2xl">
+          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Scale className="w-4 h-4 text-blue-500" />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Cumplimiento Legal</span>
@@ -184,7 +240,7 @@ export default function GameMain() {
           </div>
 
           {/* Environmental Score */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-850 px-3.5 py-2 rounded-2xl">
+          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <ShieldCheck className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Score Ambiental</span>
@@ -202,12 +258,29 @@ export default function GameMain() {
             </button>
           )}
 
-          <button 
-            onClick={toggleDarkMode}
-            className="hidden sm:block p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-350 cursor-pointer"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setShowTour(true)} aria-label="Abrir guía interactiva" title="Cómo jugar" className="rounded-xl bg-lime-200 p-2.5 text-emerald-900 transition hover:bg-lime-300"><HelpCircle className="size-4" /></button>
+            <div className="hidden items-center gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={() => setFontScale((current) => current === 'normal' ? 'large' : 'normal')}
+              aria-pressed={fontScale === 'large'}
+              aria-label={fontScale === 'large' ? 'Usar tamaño de letra normal' : 'Aumentar tamaño de letra'}
+              title="Ajustar tamaño de letra"
+              className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-black text-slate-600 transition hover:bg-lime-200 dark:bg-slate-800 dark:text-slate-300"
+            >A<span className="text-base">A</span>
+            </button>
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              aria-pressed={isDark}
+              aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              className="rounded-xl bg-slate-100 p-2.5 text-slate-500 transition hover:text-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -217,14 +290,14 @@ export default function GameMain() {
         <aside className="w-full md:w-64 border-r border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900 p-5 flex flex-col justify-between gap-6">
           <div className="flex flex-col gap-5">
             {/* Multi-company Selector */}
-            <div className="flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-850 shadow-2xs">
+            <div className="flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs">
               <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
                 Empresa a Certificar
               </span>
               <select
                 value={currentCompanyId}
                 onChange={(e) => switchCompany(e.target.value as 'metal' | 'chem' | 'power' | 'mine' | 'oil' | 'airport')}
-                className={`text-xs font-extrabold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-slate-850 dark:text-slate-100 focus:outline-none focus:ring-2 ${theme.ring} cursor-pointer shadow-3xs`}
+                className={`text-xs font-extrabold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 ${theme.ring} cursor-pointer shadow-3xs`}
               >
                 <option value="metal">⚙️ Metalmecánica</option>
                 <option value="chem">🧪 Agroquímica</option>
@@ -311,11 +384,22 @@ export default function GameMain() {
                   <span className="text-[9px] bg-emerald-100 text-emerald-600 rounded px-1">CERT</span>
                 )}
               </button>
+
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
+                  activeTab === 'profile'
+                    ? `${theme.bg} text-white shadow-md ${theme.shadow}`
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                }`}
+              >
+                <UserRound className="w-4.5 h-4.5" /> Mi Perfil
+              </button>
             </nav>
           </div>
 
           {/* Level and XP progress panel */}
-          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-850 p-4 rounded-2xl flex flex-col gap-3">
+          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 p-4 rounded-2xl flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Progreso Global</span>
               <span className={`text-[10px] font-bold ${theme.text} uppercase tracking-widest ${theme.bgLight} px-1.5 py-0.5 rounded`}>Nivel {level}</span>
@@ -336,7 +420,7 @@ export default function GameMain() {
 
             {/* Badges Shelf */}
             <div className="flex flex-col gap-1.5 mt-2">
-              <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest">Logros Obtenidos</span>
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Logros Obtenidos</span>
               <div className="flex flex-wrap gap-1.5">
                 {badges.length > 0 ? (
                   badges.map((b) => (
@@ -357,9 +441,41 @@ export default function GameMain() {
         </aside>
 
         {/* Content area */}
-        <main className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-80px)]">
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-8 overflow-y-auto max-h-[calc(100vh-80px)]">
           {activeTab === 'dashboard' && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-6">
+              <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-950 p-6 text-white shadow-xl shadow-emerald-950/10 md:p-7" aria-labelledby="mission-title">
+                <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[22px] border-lime-300/70" aria-hidden="true" />
+                <div className="absolute bottom-5 right-28 h-5 w-5 rotate-45 bg-[var(--color-coral)]" aria-hidden="true" />
+                <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-lime-300">
+                      <Target className="h-4 w-4" /> {mission.eyebrow}
+                    </div>
+                    <h1 id="mission-title" className="mt-3 max-w-2xl text-2xl font-black leading-tight tracking-tight md:text-3xl">{mission.title}</h1>
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-emerald-100">{mission.detail}</p>
+                    <button onClick={() => setActiveTab(mission.tab)} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-lime-300 px-4 py-3 text-xs font-black text-emerald-950 transition hover:-translate-y-0.5 hover:bg-lime-200">
+                      {mission.action} <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-emerald-100"><span>Ruta de aprendizaje</span><span>{learningProgress}%</span></div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-emerald-900"><div className="h-full rounded-full bg-lime-300 transition-all" style={{ width: `${learningProgress}%` }} /></div>
+                    <div className="mt-4 grid grid-cols-4 gap-2">
+                      {learningPhases.map((phase) => <div key={phase.label} className="flex flex-col gap-1"><span className={`h-2 rounded-full ${phase.done ? 'bg-lime-300' : 'bg-white/20'}`} /><span className="text-[9px] font-bold leading-tight text-emerald-100">{phase.label}</span><span className="text-[9px] text-emerald-300">§{phase.range}</span></div>)}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="grid gap-4 md:grid-cols-3" aria-label="Cómo jugar">
+                {[['01', 'Diagnostica', 'Lee el contexto y detecta aspectos significativos.'], ['02', 'Decide', 'Invierte presupuesto en controles con evidencia.'], ['03', 'Demuestra', 'Documenta, entrena y supera la auditoría.']].map(([number, title, detail]) => <div key={number} className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"><span className="font-mono text-xs font-black text-coral-500">{number}</span><div><h2 className="text-xs font-black uppercase tracking-wide text-slate-800 dark:text-white">{title}</h2><p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{detail}</p></div></div>)}
+              </section>
+
+              <LearningGuide />
+              <ProcessDiagram />
+
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               
               {/* Quick executive summary gauges */}
               <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -421,7 +537,7 @@ export default function GameMain() {
                     <h2 className="text-lg font-black text-slate-800 dark:text-white mt-2">
                       {activeCompany.name}
                     </h2>
-                    <p className="text-xs text-slate-650 dark:text-slate-350 mt-1 leading-normal">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-normal">
                       {activeCompany.description}
                     </p>
                   </div>
@@ -524,6 +640,7 @@ export default function GameMain() {
                   </p>
                 </div>
               </div>
+              </div>
             </div>
           )}
 
@@ -535,7 +652,9 @@ export default function GameMain() {
 
           {activeTab === 'ai' && <AiConsole key={currentCompanyId} />}
 
-          {activeTab === 'audit' && <FinalAudit key={currentCompanyId} />}
+          {activeTab === 'audit' && <FinalAudit key={currentCompanyId} onNavigate={setActiveTab} />}
+
+          {activeTab === 'profile' && <ProfileView onEdit={() => setShowProfile(true)} onNavigate={setActiveTab} />}
         </main>
       </div>
 
@@ -545,13 +664,22 @@ export default function GameMain() {
         <span>ISO 14001:2026 (4a Edición)</span>
       </footer>
 
+
+      {showProfile && (
+        <ProfileSetup
+          initial={profile}
+          onSaved={() => setShowProfile(false)}
+          onClose={profile ? () => setShowProfile(false) : undefined}
+        />
+      )}
+
       {/* Welcome Wizard Modal */}
-      {showWelcome && (
+      {showWelcome && !showProfile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md px-4 py-6">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in-up">
             
             {/* Header */}
-            <div className="border-b border-slate-100 dark:border-slate-850 px-6 py-4 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+            <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
               <div className="flex items-center gap-2">
                 <Logo />
                 <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider">
@@ -585,7 +713,7 @@ export default function GameMain() {
                     </div>
                   </div>
 
-                  <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed mt-2">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-2">
                     ¡Bienvenido a bordo! Has sido contratado como <strong>EHS Environmental Manager</strong>. Tu misión principal es diseñar, implementar, auditar y certificar el Sistema de Gestión Ambiental (SGA) de la planta asignada.
                   </p>
 
@@ -595,7 +723,7 @@ export default function GameMain() {
                       <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wide">
                         ¡REQUISITO CLAVE DE LA VERSIÓN ISO 14001:2026!
                       </span>
-                      <p className="text-xs text-slate-600 dark:text-slate-350 leading-normal">
+                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-normal">
                         La nueva norma 2026 integra obligatoriamente la relevancia del <strong>Cambio Climático (§4.1/4.2)</strong>. Deberás evaluar formalmente cómo el aumento de sequías, estrés hídrico y temperaturas extremas impactan la operación de tu planta y las exigencias de tus partes interesadas.
                       </p>
                     </div>
@@ -612,12 +740,12 @@ export default function GameMain() {
                   <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                     <Map className="w-5 h-5 text-emerald-500" /> El Proceso del SGA: Estructura del Simulador
                   </h3>
-                  <p className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                     Para lograr la certificación, deberás trabajar secuencialmente a través de las pestañas del menú izquierdo:
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl flex gap-3">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl flex gap-3">
                       <span className="text-xl">4️⃣</span>
                       <div className="flex flex-col gap-0.5">
                         <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Contexto & Clima</span>
@@ -625,7 +753,7 @@ export default function GameMain() {
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl flex gap-3">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl flex gap-3">
                       <span className="text-xl">6️⃣</span>
                       <div className="flex flex-col gap-0.5">
                         <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Aspectos e Impactos</span>
@@ -633,7 +761,7 @@ export default function GameMain() {
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl flex gap-3">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl flex gap-3">
                       <span className="text-xl">8️⃣</span>
                       <div className="flex flex-col gap-0.5">
                         <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Control Operacional</span>
@@ -641,7 +769,7 @@ export default function GameMain() {
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-2xl flex gap-3">
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-2xl flex gap-3">
                       <span className="text-xl">📋</span>
                       <div className="flex flex-col gap-0.5">
                         <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Auditoría & Mejora</span>
@@ -657,12 +785,12 @@ export default function GameMain() {
                   <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                     <FolderEdit className="w-5 h-5 text-emerald-500" /> El Gestor Documental Profesional (DMS)
                   </h3>
-                  <p className="text-xs text-slate-650 dark:text-slate-350 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                     Un pilar fundamental de la auditoría es la **información documentada (§7.5)**. Hemos diseñado un Gestor Documental corporativo de alto nivel:
                   </p>
 
-                  <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-250/50 dark:border-slate-850 rounded-2xl flex gap-4 mt-2">
-                    <div className="w-1/2 flex flex-col gap-1.5 border-r border-slate-200 dark:border-slate-850 pr-4 text-[11px] text-slate-500 dark:text-slate-400">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800 rounded-2xl flex gap-4 mt-2">
+                    <div className="w-1/2 flex flex-col gap-1.5 border-r border-slate-200 dark:border-slate-800 pr-4 text-[11px] text-slate-500 dark:text-slate-400">
                       <span className="font-extrabold text-slate-700 dark:text-slate-300">📂 Organización Avanzada</span>
                       <p>Los documentos se agrupan en carpetas del SGA (Contexto, Planificación, Operación, Evaluación). Incluye búsqueda en vivo y filtros rápidos.</p>
                       <span className="font-extrabold text-slate-700 dark:text-slate-300 mt-2">📝 Editor en Pantalla Dividida</span>
@@ -693,7 +821,7 @@ export default function GameMain() {
                     {/* Metal */}
                     <button 
                       onClick={() => { switchCompany('metal'); setShowWelcome(false); }}
-                      className="text-left border border-slate-200 dark:border-slate-850 hover:border-emerald-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
+                      className="text-left border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
                     >
                       <div>
                         <span className="text-xl">⚙️</span>
@@ -712,7 +840,7 @@ export default function GameMain() {
                     {/* Chem */}
                     <button 
                       onClick={() => { switchCompany('chem'); setShowWelcome(false); }}
-                      className="text-left border border-slate-200 dark:border-slate-850 hover:border-purple-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-purple-50/10 dark:hover:bg-purple-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
+                      className="text-left border border-slate-200 dark:border-slate-800 hover:border-purple-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-purple-50/10 dark:hover:bg-purple-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
                     >
                       <div>
                         <span className="text-xl">🧪</span>
@@ -731,7 +859,7 @@ export default function GameMain() {
                     {/* Power */}
                     <button 
                       onClick={() => { switchCompany('power'); setShowWelcome(false); }}
-                      className="text-left border border-slate-200 dark:border-slate-850 hover:border-sky-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-sky-50/10 dark:hover:bg-sky-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
+                      className="text-left border border-slate-200 dark:border-slate-800 hover:border-sky-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-sky-50/10 dark:hover:bg-sky-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
                     >
                       <div>
                         <span className="text-xl">⚡</span>
@@ -750,7 +878,7 @@ export default function GameMain() {
                     {/* Mine */}
                     <button 
                       onClick={() => { switchCompany('mine'); setShowWelcome(false); }}
-                      className="text-left border border-slate-200 dark:border-slate-850 hover:border-amber-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-amber-50/10 dark:hover:bg-amber-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
+                      className="text-left border border-slate-200 dark:border-slate-800 hover:border-amber-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-amber-50/10 dark:hover:bg-amber-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
                     >
                       <div>
                         <span className="text-xl">🏆</span>
@@ -769,7 +897,7 @@ export default function GameMain() {
                     {/* Oil */}
                     <button 
                       onClick={() => { switchCompany('oil'); setShowWelcome(false); }}
-                      className="text-left border border-slate-200 dark:border-slate-850 hover:border-orange-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-orange-50/10 dark:hover:bg-orange-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
+                      className="text-left border border-slate-200 dark:border-slate-800 hover:border-orange-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-orange-50/10 dark:hover:bg-orange-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
                     >
                       <div>
                         <span className="text-xl">🛢️</span>
@@ -788,7 +916,7 @@ export default function GameMain() {
                     {/* Airport */}
                     <button 
                       onClick={() => { switchCompany('airport'); setShowWelcome(false); }}
-                      className="text-left border border-slate-200 dark:border-slate-850 hover:border-indigo-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-indigo-50/10 dark:hover:bg-indigo-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
+                      className="text-left border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/40 hover:bg-indigo-50/10 dark:hover:bg-indigo-950/10 cursor-pointer transition-all flex flex-col justify-between group text-slate-800 dark:text-slate-100"
                     >
                       <div>
                         <span className="text-xl">✈️</span>
@@ -810,7 +938,7 @@ export default function GameMain() {
             </div>
 
             {/* Footer Navigation Buttons */}
-            <div className="border-t border-slate-100 dark:border-slate-850 px-6 py-4 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+            <div className="border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wide">
                 Paso {welcomeStep + 1} de 4
               </span>
@@ -818,7 +946,7 @@ export default function GameMain() {
                 {welcomeStep > 0 && (
                   <button 
                     onClick={() => setWelcomeStep(welcomeStep - 1)}
-                    className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-850 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center gap-1"
+                    className="px-4 py-2 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center gap-1"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" /> Atrás
                   </button>
@@ -833,7 +961,7 @@ export default function GameMain() {
                 ) : (
                   <button 
                     onClick={() => { setShowWelcome(false); }}
-                    className="px-4 py-2 bg-slate-850 dark:bg-slate-100 text-white dark:text-slate-850 text-xs font-bold rounded-xl cursor-pointer transition-all"
+                    className="px-4 py-2 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-800 text-xs font-bold rounded-xl cursor-pointer transition-all"
                   >
                     Cerrar
                   </button>
@@ -844,6 +972,8 @@ export default function GameMain() {
           </div>
         </div>
       )}
+
+      <InteractiveTour open={showTour} onClose={() => setShowTour(false)} />
     </div>
   );
 }

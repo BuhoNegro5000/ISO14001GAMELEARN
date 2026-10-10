@@ -204,7 +204,7 @@ Cuando ocurra un incidente o desvío legal (No Conformidad):
 * **Incumplimientos Activos:** ${nonCompliantRules.length}
 
 Las multas actuales por cada infracción no mitigada ascienden a:
-${state.legalMatrix.map(l => `- **[${l.id}] ${l.area}**: $${l.penalty.toLocaleString()} (${l.status === 'compliant' ? '✅ SUBSANADO' : '❌ PENDIENTE MULTA'})`).join('\n')}
+${state.legalMatrix.map(l => `- **[${l.id}] ${l.area}**: $${l.penalty.toLocaleString('es-ES')} (${l.status === 'compliant' ? '✅ SUBSANADO' : '❌ PENDIENTE MULTA'})`).join('\n')}
 
 **Advertencia:** Si mantenemos un nivel de cumplimiento legal inferior al 50% por más de 3 semanas seguidas, procederé a emitir una orden de suspensión parcial de actividades en Producción.`;
     }
@@ -248,7 +248,7 @@ Le sugiero que implemente los controles operacionales antes de mi próxima visit
   if (agent === 'ceo') {
     if (query.includes('presupuesto') || query.includes('dinero') || query.includes('fondos') || query.includes('costo')) {
       return `### Estado del Presupuesto Corporativo:
-* **Presupuesto disponible:** $${state.budget.toLocaleString()}
+* **Presupuesto disponible:** $${state.budget.toLocaleString('es-ES')}
 * **Reputación corporativa:** ${state.reputation}%
 * **Maturity Score:** ${state.environmentalScore}%
 
@@ -264,10 +264,10 @@ Entiendo que la gestión ambiental requiere recursos, pero debes demostrar que c
     if (query.includes('carbono') || query.includes('huella') || query.includes('descarbonizar') || query.includes('co2') || query.includes('ghg') || query.includes('sbti') || query.includes('gri') || query.includes('sdg') || query.includes('ods')) {
       const totalCo2 = state.carbonScope1 + state.carbonScope2 + state.carbonScope3;
       return `### Reporte de Huella de Carbono y Sostenibilidad Corporativa:
-* **Alcance 1 (Directo - diésel/combustible):** ${state.carbonScope1.toLocaleString()} kg CO2e
-* **Alcance 2 (Indirecto Eléctrico):** ${state.carbonScope2.toLocaleString()} kg CO2e
-* **Alcance 3 (Cadena de Suministro/logística):** ${state.carbonScope3.toLocaleString()} kg CO2e
-* **Emisión Total (GHG Protocol):** ${totalCo2.toLocaleString()} kg CO2e
+* **Alcance 1 (Directo - diésel/combustible):** ${state.carbonScope1.toLocaleString('es-ES')} kg CO2e
+* **Alcance 2 (Indirecto Eléctrico):** ${state.carbonScope2.toLocaleString('es-ES')} kg CO2e
+* **Alcance 3 (Cadena de Suministro/logística):** ${state.carbonScope3.toLocaleString('es-ES')} kg CO2e
+* **Emisión Total (GHG Protocol):** ${totalCo2.toLocaleString('es-ES')} kg CO2e
  
 Exijo que alineemos nuestro reporte con los estándares **GRI (302/303/305)** e implementemos metas científicas **SBTi** a 1.5°C. Esto apoya directamente los **ODS 6, 12 y 13**. Prioriza la firma de contratos de energía verde y la eficiencia de procesos para reducir costos y riesgos ante auditorías.`;
     }

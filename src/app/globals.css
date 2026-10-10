@@ -1,10 +1,48 @@
 @import "tailwindcss";
 
-:root {
-  --background: #fafafa;
-  --foreground: #0f172a;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@keyframes splash-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
+
+@keyframes splash-logo {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+:root {
+  --background: #f7f8ee;
+  --foreground: #12352a;
+  --font-sans: var(--font-geist-sans), Arial, sans-serif;
+  --color-ink: #12352a;
+  --color-paper: #f7f8ee;
+  --color-leaf: #176b4d;
+  --color-lime: #b9ee57;
+  --color-coral: #ff795d;
+}
+
+html { background: var(--background); }
+
+[data-font-scale="large"] { font-size: 118%; }
+[data-font-scale="large"] .text-\[9px\] { font-size: 0.7rem; }
+[data-font-scale="large"] .text-\[10px\] { font-size: 0.78rem; }
+[data-font-scale="large"] .text-xs { font-size: 0.875rem; }
+
+.memphis-dot { position: absolute; height: 12px; width: 12px; border-radius: 999px; background: var(--color-coral); box-shadow: 22px 16px 0 var(--color-lime), 6px 42px 0 var(--color-lime); }
+.memphis-dot-lime { left: 8%; top: 16%; }
+.memphis-star { position: absolute; right: 9%; top: 17%; color: var(--color-lime); font-size: 6rem; font-weight: 900; line-height: 1; transform: rotate(15deg); }
+
+@keyframes float-soft { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+.float-soft { animation: float-soft 5s ease-in-out infinite; }
+
+@keyframes mission-enter { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.mission-enter { animation: mission-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) { .mission-enter { animation: none; } }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
 
 @theme inline {
   --color-background: var(--background);
@@ -23,8 +61,8 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   background-attachment: fixed;
-  background-image: radial-gradient(circle at 10% 20%, rgba(226, 232, 240, 0.2) 0%, transparent 45%),
-                    radial-gradient(circle at 90% 80%, rgba(226, 232, 240, 0.25) 0%, transparent 45%);
+  background-image: linear-gradient(135deg, rgba(185, 238, 87, 0.08) 25%, transparent 25%), linear-gradient(315deg, rgba(255, 121, 93, 0.06) 25%, transparent 25%);
+  background-size: 42px 42px;
 }
 
 .dark body {

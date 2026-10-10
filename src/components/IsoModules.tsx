@@ -5,6 +5,7 @@ import {
   Users, Award, FileText, AlertCircle
 } from 'lucide-react';
 import ClauseExercise from '@/components/ClauseExercise';
+import StepTabs from '@/components/StepTabs';
 import { getExercisesByClause, clauseExercises } from '@/lib/clauseExercises';
 
 const companyNames: Record<string, string> = {
@@ -130,6 +131,8 @@ export default function IsoModules() {
     }
   };
 
+  const isClaimed = (key: string) => store.claimedRewards.includes(`${currentCompanyId}:${key}`);
+
   // ==========================================
   // CLAUSE 4 LAB STATE
   // ==========================================
@@ -141,7 +144,7 @@ export default function IsoModules() {
     f1: '', f2: '', f3: '', f4: '', f5: '', f6: ''
   });
   const [cl4Feedback, setCl4Feedback] = useState<string | null>(null);
-  const [cl4Success, setCl4Success] = useState(false);
+  const [cl4Success, setCl4Success] = useState(() => isClaimed('cl4-context'));
   const [cl4ClimateDecision, setCl4ClimateDecision] = useState<number | null>(() => climateRelevanceDetermined ? 2 : null);
   const [cl4ClimateFeedback, setCl4ClimateFeedback] = useState<string | null>(() => climateRelevanceDetermined ? "Cargado del SGA activo." : null);
   const [cl4ScopeSelection, setCl4ScopeSelection] = useState<Record<string, boolean>>({
@@ -538,7 +541,7 @@ export default function IsoModules() {
       const isSignificant = score >= 12;
       
       setCl6Feedback(`¡Correcto! Aspecto e Impacto asociados correctamente. Puntaje de significancia: ${score} (${isSignificant ? 'SIGNIFICATIVO' : 'NO SIGNIFICATIVO'}).`);
-      setCl6SuccessCount(prev => prev + 1);
+      setCl6SuccessCount(prev => Math.max(prev, cl6Scenario));
 
       if (cl6Scenario < 3) {
         setCl6AwaitingNext(true);
@@ -564,7 +567,8 @@ export default function IsoModules() {
     patio: '', maint: '', lab: ''
   });
   const [cl7Feedback, setCl7Feedback] = useState<string | null>(null);
-  const [cl7Success, setCl7Success] = useState(() => awarenessScore >= 100);
+  const [cl7Success, setCl7Success] = useState(() => awarenessScore >= 100 || isClaimed('cl7-training'));
+  const [cl7Step, setCl7Step] = useState(() => (awarenessScore >= 100 || isClaimed('cl7-training') ? 2 : 1));
   const [cl7QuizAnswer, setCl7QuizAnswer] = useState<number | null>(null);
   const [cl7QuizChecked, setCl7QuizChecked] = useState(false);
 
@@ -573,6 +577,7 @@ export default function IsoModules() {
       const alreadyTrained = store.claimedRewards.includes(`${currentCompanyId}:cl7-training`);
       if (alreadyTrained) {
         setCl7Success(true);
+        setCl7Step(2);
         return;
       }
       if (budget < 5000) {
@@ -581,6 +586,7 @@ export default function IsoModules() {
       }
       setCl7Feedback("¡Competencias validadas! Los temas han sido asignados correctamente a las áreas críticas.");
       setCl7Success(true);
+      setCl7Step(2);
       conductTraining(5000);
       award('cl7-training', 0, 'CLÁUSULA 7.2: Talleres de competencia ejecutados con registros de capacitación.');
     } else {
@@ -604,7 +610,7 @@ export default function IsoModules() {
     substitute: '', engineering: '', admin: '', epp: ''
   });
   const [cl8HierarchyFeedback, setCl8HierarchyFeedback] = useState<string | null>(null);
-  const [cl8HierarchySuccess, setCl8HierarchySuccess] = useState(false);
+  const [cl8HierarchySuccess, setCl8HierarchySuccess] = useState(() => isClaimed('cl8-hierarchy'));
   const [cl8DrillStep, setCl8DrillStep] = useState(1);
   const [cl8DrillFail, setCl8DrillFail] = useState(false);
   const [cl8DrillFeedback, setCl8DrillFeedback] = useState<string | null>(null);
@@ -668,7 +674,7 @@ export default function IsoModules() {
     energy: '', water: '', scope1: '', scope2: ''
   });
   const [cl9GriFeedback, setCl9GriFeedback] = useState<string | null>(null);
-  const [cl9GriSuccess, setCl9GriSuccess] = useState(false);
+  const [cl9GriSuccess, setCl9GriSuccess] = useState(() => isClaimed('cl9-gri'));
   const [cl9Audit, setCl9Audit] = useState<Record<string, string>>({
     f1: '', f2: '', f3: ''
   });
@@ -887,11 +893,15 @@ export default function IsoModules() {
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
                   Laboratorio de Contexto e Impacto Climático (§4.1/4.2)
                 </h4>
-                <div className="flex gap-1.5 text-[10px] font-bold">
-                  <span className={`px-2 py-0.5 rounded ${cl4Step >= 1 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 1</span>
-                  <span className={`px-2 py-0.5 rounded ${cl4Step >= 2 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 2</span>
-                  <span className={`px-2 py-0.5 rounded ${cl4Step >= 3 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 3</span>
-                </div>
+                <StepTabs
+                  current={cl4Step}
+                  onSelect={(step) => { setCl4Step(step); setCl4Feedback(null); }}
+                  steps={[
+                    { label: 'Paso 1', unlocked: true, done: cl4Success },
+                    { label: 'Paso 2', unlocked: cl4Success, done: cl4ClimateDecision === 2 },
+                    { label: 'Paso 3', unlocked: cl4Success && cl4ClimateDecision === 2, done: cl4ScopeSaved },
+                  ]}
+                />
               </div>
 
               {/* EHS Academy Guide Card */}
@@ -1102,10 +1112,14 @@ export default function IsoModules() {
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
                   Laboratorio de Liderazgo, Política y Roles (§5.2/5.3)
                 </h4>
-                <div className="flex gap-1.5 text-[10px] font-bold">
-                  <span className={`px-2 py-0.5 rounded ${cl5Step >= 1 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 1</span>
-                  <span className={`px-2 py-0.5 rounded ${cl5Step >= 2 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 2</span>
-                </div>
+                <StepTabs
+                  current={cl5Step}
+                  onSelect={(step) => { setCl5Step(step); setCl5PolicyFeedback(null); }}
+                  steps={[
+                    { label: 'Paso 1', unlocked: true, done: cl5PolicySuccess },
+                    { label: 'Paso 2', unlocked: cl5PolicySuccess, done: cl5RolesSuccess },
+                  ]}
+                />
               </div>
 
               {/* EHS Academy Guide Card */}
@@ -1294,20 +1308,20 @@ export default function IsoModules() {
                   </p>
                 </div>
               </div>
-                <div className="flex gap-1.5 text-[10px] font-bold">
-                  <span 
-                    onClick={() => { if (cl6Scenario >= 4) setCl6Scenario(1); }}
-                    className={`px-2 py-0.5 rounded cursor-pointer ${cl6Scenario <= 3 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}
-                  >
-                    Paso 1: Aspectos
-                  </span>
-                  <span 
-                    onClick={() => { if (cl6SuccessCount >= 3) setCl6Scenario(4); }}
-                    className={`px-2 py-0.5 rounded ${cl6Scenario === 4 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'} ${cl6SuccessCount >= 3 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
-                  >
-                    Paso 2: Cambios (2026)
-                  </span>
-                </div>
+                <StepTabs
+                  current={cl6Scenario === 4 ? 2 : 1}
+                  onSelect={(step) => {
+                    setCl6Aspect('');
+                    setCl6Impact('');
+                    setCl6Feedback(null);
+                    setCl6AwaitingNext(false);
+                    setCl6Scenario(step === 1 ? 1 : 4);
+                  }}
+                  steps={[
+                    { label: 'Paso 1: Aspectos', unlocked: true, done: cl6SuccessCount >= 3 },
+                    { label: 'Paso 2: Cambios (2026)', unlocked: cl6SuccessCount >= 3, done: changeSuccess },
+                  ]}
+                />
 
 
               {cl6Scenario <= 3 && (() => {
@@ -1508,10 +1522,14 @@ export default function IsoModules() {
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
                   Plan de Competencia y Concientización (§7.2/7.3)
                 </h4>
-                <div className="flex gap-1.5 text-[10px] font-bold">
-                  <span className={`px-2 py-0.5 rounded ${!cl7Success ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 1</span>
-                  <span className={`px-2 py-0.5 rounded ${cl7Success ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 2</span>
-                </div>
+                <StepTabs
+                  current={cl7Step}
+                  onSelect={setCl7Step}
+                  steps={[
+                    { label: 'Paso 1', unlocked: true, done: cl7Success },
+                    { label: 'Paso 2', unlocked: cl7Success, done: cl7QuizChecked && cl7QuizAnswer === 1 },
+                  ]}
+                />
               </div>
 
               {/* EHS Academy Guide Card */}
@@ -1527,7 +1545,7 @@ export default function IsoModules() {
                 </div>
               </div>
 
-              {!cl7Success ? (
+              {cl7Step === 1 ? (
                 <div className="flex flex-col gap-3 text-xs">
                   <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 1: Mapeo de Matriz de Competencias.</strong> Asigna a cada área de la empresa el taller ambiental adecuado para capacitar a los operarios según sus aspectos y riesgos operacionales.
@@ -1639,7 +1657,7 @@ export default function IsoModules() {
                   )}
 
                   <div className="flex justify-between items-center mt-3">
-                    <button onClick={() => { setCl7Success(false); setCl7QuizChecked(false); setCl7QuizAnswer(null); }} className="text-xs text-slate-400 hover:text-slate-600 font-bold">Atrás</button>
+                    <button onClick={() => { setCl7Step(1); setCl7QuizChecked(false); setCl7QuizAnswer(null); }} className="text-xs text-slate-400 hover:text-slate-600 font-bold">Atrás</button>
                     {cl7QuizAnswer === 1 && (
                       <span className="text-xs text-emerald-500 font-bold flex items-center gap-1">
                         <Check className="w-4 h-4" /> Concientización Certificada
@@ -1660,10 +1678,14 @@ export default function IsoModules() {
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
                   Laboratorio de Control Operacional y Emergencias (§8.1/8.2)
                 </h4>
-                <div className="flex gap-1.5 text-[10px] font-bold">
-                  <span className={`px-2 py-0.5 rounded ${cl8Step === 1 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 1</span>
-                  <span className={`px-2 py-0.5 rounded ${cl8Step === 2 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 2</span>
-                </div>
+                <StepTabs
+                  current={cl8Step}
+                  onSelect={(step) => { setCl8Step(step); setCl8HierarchyFeedback(null); }}
+                  steps={[
+                    { label: 'Paso 1', unlocked: true, done: cl8HierarchySuccess },
+                    { label: 'Paso 2', unlocked: cl8HierarchySuccess, done: cl8DrillSuccess },
+                  ]}
+                />
               </div>
 
               {/* EHS Academy Guide Card */}
@@ -1871,10 +1893,14 @@ export default function IsoModules() {
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
                   Evaluación de Desempeño y Auditoría Interna (§9.1.1/9.2)
                 </h4>
-                <div className="flex gap-1.5 text-[10px] font-bold">
-                  <span className={`px-2 py-0.5 rounded ${cl9Step >= 1 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 1</span>
-                  <span className={`px-2 py-0.5 rounded ${cl9Step >= 2 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>Paso 2</span>
-                </div>
+                <StepTabs
+                  current={cl9Step}
+                  onSelect={(step) => { setCl9Step(step); setCl9GriFeedback(null); }}
+                  steps={[
+                    { label: 'Paso 1', unlocked: true, done: cl9GriSuccess },
+                    { label: 'Paso 2', unlocked: cl9GriSuccess, done: cl9AuditSuccess },
+                  ]}
+                />
               </div>
 
               {/* EHS Academy Guide Card */}

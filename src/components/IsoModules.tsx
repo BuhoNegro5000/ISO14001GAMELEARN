@@ -4,6 +4,17 @@ import {
   CheckCircle2, ShieldAlert, Check, BookOpen,
   Users, Award, FileText, AlertCircle
 } from 'lucide-react';
+import ClauseExercise from '@/components/ClauseExercise';
+import { getExercisesByClause, clauseExercises } from '@/lib/clauseExercises';
+
+const companyNames: Record<string, string> = {
+  metal: 'EnviroPro',
+  chem: 'BioChem',
+  power: 'EcoPower',
+  mine: 'MineGold',
+  oil: 'PetroGlow',
+  airport: 'SkyGate'
+};
 
 // Clause 6.3 Change Management (ISO 14001:2026)
 export interface ChangeStep {
@@ -111,6 +122,13 @@ export default function IsoModules() {
   } = store;
 
   const [activeTab, setActiveTab] = useState<number>(4); // Clauses 4 to 10
+  const companyName = companyNames[currentCompanyId] ?? 'la organización';
+
+  const award = (key: string, amount: number, message: string) => {
+    if (store.awardXp(key, amount)) {
+      store.triggerEvent({ type: 'success', message: `${message} (+${amount} XP)` });
+    }
+  };
 
   // ==========================================
   // CLAUSE 4 LAB STATE
@@ -133,6 +151,7 @@ export default function IsoModules() {
     pt: false
   });
   const [cl4ScopeSaved, setCl4ScopeSaved] = useState(() => !!scopeStatement);
+  const [cl4ScopeError, setCl4ScopeError] = useState<string | null>(null);
 
   const cl4Factors = [
     { id: 'f1', text: "Aumento de lluvias torrenciales e inundaciones perimetrales", correctPestel: "environmental", correctSwot: "threats" },
@@ -154,8 +173,7 @@ export default function IsoModules() {
     if (errors === 0) {
       setCl4Feedback("¡Excelente! Has clasificado todos los factores del entorno correctamente. Comprendes cómo los elementos FODA y PESTEL configuran el contexto organizacional.");
       setCl4Success(true);
-      store.triggerEvent({ type: 'success', message: '🏆 CLÁUSULA 4.1: FODA/PESTEL Completado con éxito. (+100 XP)' });
-      useGameStore.setState({ xp: xp + 100 });
+      award('cl4-context', 100, 'CLÁUSULA 4.1: FODA/PESTEL completado con éxito.');
     } else {
       setCl4Feedback(`Tienes desvíos en la clasificación. Revisa los conceptos: recuerda que las multas son Legales/Amenazas, las lluvias extremas son Ambientales/Amenazas y la maquinaria es Tecnológica/Debilidad.`);
     }
@@ -164,15 +182,14 @@ export default function IsoModules() {
   const handleVerifyCl4Step2 = (decision: number) => {
     setCl4ClimateDecision(decision);
     if (decision === 2) {
-      setCl4ClimateFeedback("¡Excelente decisión! Declarar formalmente el estrés hídrico y las inundaciones como factores del contexto cumple estrictamente con los requisitos integrados de Cambio Climático en la norma ISO 14001:2026. Habilitas la gestión integrada de riesgos.");
+      setCl4ClimateFeedback("¡Excelente decisión! La Enmienda 1:2024 exige determinar si el cambio climático es una cuestión pertinente (§4.1) y si las partes interesadas tienen requisitos relacionados (§4.2). Reconocer riesgos físicos y de transición habilita la gestión integrada de riesgos.");
       updateClimateImpact(
-        "Riesgos físicos por inundaciones torrenciales en el Patio de Residuos y estrés hídrico para la captación de agua fresca en calderas.",
-        "Los clientes exigen trazabilidad del Scope 1, 2 y 3. El regulador fiscaliza vertimientos efluentes bajo estándares estrictos."
+        "Riesgos físicos por inundaciones torrenciales y estrés hídrico para la captación de agua industrial; riesgos de transición por regulación de carbono.",
+        "Los clientes exigen trazabilidad del Scope 1, 2 y 3. El regulador fiscaliza vertimientos y emisiones bajo estándares estrictos."
       );
-      store.triggerEvent({ type: 'success', message: '🌱 CLÁUSULA 4.2: Evaluación de Acción Climática Aprobada. (+100 XP)' });
-      useGameStore.setState({ xp: xp + 100 });
+      award('cl4-climate', 100, 'CLÁUSULA 4.1/4.2: Evaluación de acción climática aprobada.');
     } else {
-      setCl4ClimateFeedback("Error de cumplimiento. La norma ISO 14001:2026 exige determinar de manera obligatoria la relevancia de los riesgos del cambio climático en el contexto organizacional (§4.1/4.2). Ignorarlo resultará en una No Conformidad Mayor del auditor.");
+      setCl4ClimateFeedback("Respuesta incorrecta. Operar bajo techo no excluye al cambio climático: hay riesgos de transición (regulación, clientes), de cadena de suministro y del agua que se capta. La norma exige determinar si es pertinente (§4.1/4.2) y dejar constancia; omitirlo es un hallazgo del auditor.");
     }
   };
 
@@ -180,22 +197,22 @@ export default function IsoModules() {
     const selectedText = Object.entries(cl4ScopeSelection)
       .filter(([, checked]) => checked)
       .map(([key]) => {
-        if (key === 'prod') return 'Procesos de producción (Prensas de extrusión)';
-        if (key === 'alm') return 'Almacenamiento y trasvase de sustancias químicas';
-        if (key === 'log') return 'Logística y distribución final';
-        return 'Planta de tratamiento de efluentes líquidos';
+        if (key === 'prod') return 'Procesos productivos principales';
+        if (key === 'alm') return 'Almacenamiento y trasvase de insumos y sustancias químicas';
+        if (key === 'log') return 'Logística y transporte';
+        return 'Tratamiento de efluentes y gestión de residuos';
       }).join(', ');
 
     if (!selectedText) {
-      alert("Por favor selecciona al menos un área para declarar el alcance.");
+      setCl4ScopeError('Selecciona al menos una actividad para declarar el alcance.');
       return;
     }
 
-    const finalStatement = `El Sistema de Gestión Ambiental de EnviroPro comprende: ${selectedText}, considerando un enfoque de ciclo de vida en la planta industrial central.`;
+    setCl4ScopeError(null);
+    const finalStatement = `El Sistema de Gestión Ambiental de ${companyName} comprende: ${selectedText}. Se consideran las cuestiones internas y externas (§4.1), los requisitos de las partes interesadas (§4.2) y las actividades, productos y servicios bajo su control o influencia, con perspectiva de ciclo de vida.`;
     setScopeStatement(finalStatement);
     setCl4ScopeSaved(true);
-    store.triggerEvent({ type: 'success', message: '📄 CLÁUSULA 4.3: Alcance del SGA establecido. (+100 XP)' });
-    useGameStore.setState({ xp: xp + 100 });
+    award('cl4-scope', 100, 'CLÁUSULA 4.3: Alcance del SGA establecido.');
   };
 
   // ==========================================
@@ -231,18 +248,18 @@ export default function IsoModules() {
       return;
     }
 
-    if (prev && leg && improve && climate) {
-      setCl5PolicyFeedback("¡Felicidades! La Política Ambiental cumple con los 4 compromisos obligatorios de ISO 14001 y la Enmienda Climática. Está lista para la firma del CEO.");
+    if (prev && leg && improve) {
+      setCl5PolicyFeedback(climate
+        ? "¡Felicidades! La política incluye los 3 compromisos que exige §5.2 (protección del medio ambiente incluida la prevención de la contaminación, cumplimiento de obligaciones y mejora continua) y además el compromiso climático recomendado tras la Enmienda 1:2024. Lista para la firma del CEO."
+        : "La política incluye los 3 compromisos que exige §5.2 y queda aprobada. Recomendación: tras la Enmienda 1:2024, incorporar el compromiso climático fortalece la coherencia con el contexto (§4.1).");
       setCl5PolicySuccess(true);
-      // Actualizar el documento de política en el store a signed
       const policyDoc = documents.find(d => d.type === 'policy');
       if (policyDoc) {
         store.updateDocument(policyDoc.id, policyDoc.content, 'approved_ceo');
       }
-      store.triggerEvent({ type: 'success', message: '✍️ CLÁUSULA 5.2: Política redactada y aprobada por CEO. (+100 XP)' });
-      useGameStore.setState({ xp: xp + 100 });
+      award('cl5-policy', 100, 'CLÁUSULA 5.2: Política redactada y aprobada por el CEO.');
     } else {
-      setCl5PolicyFeedback("Faltan compromisos obligatorios. Asegúrate de incluir: Prevención de la contaminación, Cumplimiento legal, Mejora continua y Acción Climática.");
+      setCl5PolicyFeedback("Faltan compromisos que exige la cláusula 5.2: protección del medio ambiente (incluida la prevención de la contaminación), cumplimiento de las obligaciones de cumplimiento y mejora continua del SGA.");
     }
   };
 
@@ -254,8 +271,7 @@ export default function IsoModules() {
       assignRole(0, "Ing. Maria Rojas");
       assignRole(1, "Ing. Juan Perez");
       assignRole(2, "Carlos Gomez");
-      store.triggerEvent({ type: 'success', message: '👥 CLÁUSULA 5.3: Organigrama de roles consolidado. (+100 XP)' });
-      useGameStore.setState({ xp: xp + 100 });
+      award('cl5-roles', 100, 'CLÁUSULA 5.3: Organigrama de roles consolidado.');
     } else {
       setCl5RolesFeedback("Revisa la asignación de perfiles: María tiene experiencia en auditoría, Juan en procesos químicos de planta y Carlos en MSDS y emergencias químicas en almacén.");
     }
@@ -527,13 +543,7 @@ export default function IsoModules() {
       if (cl6Scenario < 3) {
         setCl6AwaitingNext(true);
       } else {
-        const companyName = currentCompanyId === 'metal' ? 'EnviroPro' : 
-                            currentCompanyId === 'chem' ? 'BioChem' : 
-                            currentCompanyId === 'power' ? 'EcoPower' :
-                            currentCompanyId === 'mine' ? 'MineGold' :
-                            currentCompanyId === 'oil' ? 'PetroGlow' : 'SkyGate';
-        store.triggerEvent({ type: 'success', message: `📊 CLÁUSULA 6.1.2: Matriz de Aspectos e Impactos completada para ${companyName}. (+150 XP)` });
-        useGameStore.setState({ xp: xp + 150 });
+        award('cl6-aspects', 150, `CLÁUSULA 6.1.2: Matriz de aspectos e impactos completada para ${companyName}.`);
         const matrixDoc = documents.find(d => d.type === 'aspect_matrix');
         if (matrixDoc) {
           store.updateDocument(matrixDoc.id, matrixDoc.content, 'signed');
@@ -560,15 +570,19 @@ export default function IsoModules() {
 
   const handleVerifyCl7Step1 = () => {
     if (cl7Training.patio === 'segregation' && cl7Training.maint === 'spill' && cl7Training.lab === 'neutralization') {
-      if (budget < 5000) {
-        setCl7Feedback("Presupuesto insuficiente para lanzar el taller ($5,000 requerido).");
+      const alreadyTrained = store.claimedRewards.includes(`${currentCompanyId}:cl7-training`);
+      if (alreadyTrained) {
+        setCl7Success(true);
         return;
       }
-      setCl7Feedback("¡Competencias validadas! Los temas han sido asignados correctamente a las áreas críticas. Lanzando taller...");
+      if (budget < 5000) {
+        setCl7Feedback("Presupuesto insuficiente para lanzar el taller ($5,000 requerido). Avanza semanas para recuperar presupuesto o reasigna recursos.");
+        return;
+      }
+      setCl7Feedback("¡Competencias validadas! Los temas han sido asignados correctamente a las áreas críticas.");
       setCl7Success(true);
       conductTraining(5000);
-      store.triggerEvent({ type: 'success', message: '🎓 CLÁUSULA 7.2: Talleres de concientización aprobados. (+150 XP)' });
-      useGameStore.setState({ xp: xp + 150 });
+      award('cl7-training', 0, 'CLÁUSULA 7.2: Talleres de competencia ejecutados con registros de capacitación.');
     } else {
       setCl7Feedback("Mapeo incorrecto. Revisa qué tipo de adiestramiento técnico requiere cada operador según su labor.");
     }
@@ -578,8 +592,7 @@ export default function IsoModules() {
     setCl7QuizAnswer(answer);
     setCl7QuizChecked(true);
     if (answer === 1) {
-      store.triggerEvent({ type: 'success', message: '🗣️ CLÁUSULA 7.3: Respuesta de concientización correcta en auditoría. (+100 XP)' });
-      useGameStore.setState({ xp: xp + 100 });
+      award('cl7-awareness', 100, 'CLÁUSULA 7.3: Respuesta de concientización correcta en auditoría.');
     }
   };
 
@@ -602,8 +615,7 @@ export default function IsoModules() {
     if (substitute === 'bio' && engineering === 'bund' && admin === 'sop' && epp === 'gloves') {
       setCl8HierarchyFeedback("¡Excelente! Comprendes el orden de la Jerarquía de Controles, priorizando mitigar los riesgos en su origen antes de depender de elementos de protección.");
       setCl8HierarchySuccess(true);
-      store.triggerEvent({ type: 'success', message: '🧱 CLÁUSULA 8.1: Jerarquía de controles aplicada al almacén. (+150 XP)' });
-      useGameStore.setState({ xp: xp + 150 });
+      award('cl8-hierarchy', 150, 'CLÁUSULA 8.1: Jerarquía de controles aplicada al almacén.');
     } else {
       setCl8HierarchyFeedback("Asignación incorrecta. Recuerda: Sustitución es cambiar el químico, Ingeniería es la losa física, Administrativo es la inspección escrita y EPP es el equipo del trabajador.");
     }
@@ -633,8 +645,7 @@ export default function IsoModules() {
       if (option === 'red') {
         setCl8DrillFeedback("¡Simulacro exitoso! El derrame fue confinado y los residuos peligrosos dispuestos de acuerdo a la ley R-DS001. Brigada lista.");
         setCl8DrillSuccess(true);
-        store.triggerEvent({ type: 'success', message: '📢 CLÁUSULA 8.2: Simulacro de emergencia aprobado con éxito. (+150 XP)' });
-        useGameStore.setState({ xp: xp + 150 });
+        award('cl8-drill', 150, 'CLÁUSULA 8.2: Simulacro de emergencia aprobado con éxito.');
       } else {
         setCl8DrillFail(true);
         setCl8DrillFeedback("🚨 INCIDENTE CRÍTICO: Desechar absorbentes tóxicos en basura común es una infracción de la ley de residuos peligrosos. Multa de $5,000.");
@@ -669,8 +680,7 @@ export default function IsoModules() {
     if (energy === '302' && water === '303' && scope1 === '305-1' && scope2 === '305-2') {
       setCl9GriFeedback("¡Correcto! Has asignado todos los indicadores GRI y alcances de la huella de carbono según el GHG Protocol con precisión.");
       setCl9GriSuccess(true);
-      store.triggerEvent({ type: 'success', message: '📊 CLÁUSULA 9.1.1: KPIs alineados con estándares GRI. (+150 XP)' });
-      useGameStore.setState({ xp: xp + 150 });
+      award('cl9-gri', 150, 'CLÁUSULA 9.1.1: KPIs alineados con estándares GRI.');
       const kpisDoc = documents.find(d => d.id === 'kpis_doc');
       if (kpisDoc) {
         store.updateDocument(kpisDoc.id, kpisDoc.content, 'signed');
@@ -685,8 +695,7 @@ export default function IsoModules() {
     if (f1 === 'ncmayor' && f2 === 'ncmenor' && f3 === 'om') {
       setCl9AuditFeedback("¡Auditoría interna validada! Has clasificado correctamente las desviaciones operativas, distinguiendo entre fallas estructurales de la norma y oportunidades de mejora.");
       setCl9AuditSuccess(true);
-      store.triggerEvent({ type: 'success', message: '🕵️ CLÁUSULA 9.2: Reporte de auditoría interna validado. (+150 XP)' });
-      useGameStore.setState({ xp: xp + 150 });
+      award('cl9-audit', 150, 'CLÁUSULA 9.2: Reporte de auditoría interna validado.');
       const auditDoc = documents.find(d => d.type === 'audit_report');
       if (auditDoc) {
         store.updateDocument(auditDoc.id, auditDoc.content, 'signed');
@@ -712,8 +721,7 @@ export default function IsoModules() {
     if (w1 === 'q1' && w2 === 'q2' && w3 === 'q3' && w4 === 'q4' && w5 === 'q5') {
       setCl10Feedback("¡Causa Raíz resuelta! Has estructurado el análisis de los 5 Porqués perfectamente. Esto demuestra que los desvíos técnicos (plomo) siempre se originan en brechas organizacionales (falta de inspecciones y procedimientos).");
       setCl10Success(true);
-      store.triggerEvent({ type: 'success', message: '🔧 CLÁUSULA 10.2: Análisis de 5 Porqués completado. (+150 XP)' });
-      useGameStore.setState({ xp: xp + 150 });
+      award('cl10-whys', 150, 'CLÁUSULA 10.2: Análisis de 5 porqués completado.');
       
       // Cerrar primer incidente si existe
       if (incidents.length > 0 && incidents[0].status === 'open') {
@@ -966,7 +974,7 @@ export default function IsoModules() {
               {cl4Step === 2 && (
                 <div className="flex flex-col gap-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
-                    <strong>Paso 2: Enmienda de Acción Climática (2024).</strong> El auditor te interroga sobre la relevancia del cambio climático. Determina la posición legal y estratégica de EnviroPro:
+                    <strong>Paso 2: Enmienda de Acción Climática (2024).</strong> El auditor te interroga sobre la relevancia del cambio climático. Determina la posición legal y estratégica de {companyName}:
                   </p>
 
                   <div className="flex flex-col gap-2.5 mt-2">
@@ -988,7 +996,7 @@ export default function IsoModules() {
                           : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
-                      <strong>Opción B:</strong> Reconocer y declarar formalmente los riesgos de inundación extrema en el Patio de Residuos y el estrés hídrico de la cuenca que encarece la captación de agua industrial.
+                      <strong>Opción B:</strong> Reconocer y declarar formalmente los riesgos físicos (inundaciones, estrés hídrico) y de transición (regulación de carbono, exigencias de clientes) como cuestiones pertinentes del contexto.
                     </button>
                   </div>
 
@@ -1015,7 +1023,7 @@ export default function IsoModules() {
               {cl4Step === 3 && (
                 <div className="flex flex-col gap-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
-                    <strong>Paso 3: Definición del Alcance (§4.3).</strong> Selecciona qué operaciones de la planta central deben estar integradas bajo el alcance certificado de tu SGA:
+                    <strong>Paso 3: Definición del Alcance (§4.3).</strong> Selecciona qué actividades de {companyName} deben estar bajo el alcance de tu SGA (límites físicos y organizacionales, considerando §4.1 y §4.2):
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2 text-xs">
@@ -1052,6 +1060,12 @@ export default function IsoModules() {
                       <span>Planta de Tratamiento (Vertimientos)</span>
                     </label>
                   </div>
+
+                  {cl4ScopeError && (
+                    <div role="alert" className="bg-rose-500/10 text-rose-600 border border-rose-500/20 p-3 rounded-xl text-xs">
+                      {cl4ScopeError}
+                    </div>
+                  )}
 
                   {scopeStatement && (
                     <div className="bg-emerald-500/5 border border-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3.5 rounded-xl text-xs leading-normal">
@@ -2199,6 +2213,17 @@ export default function IsoModules() {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {getExercisesByClause(activeTab).length > 0 && (
+            <div className="flex flex-col gap-4 mt-2 pt-5 border-t border-slate-100 dark:border-slate-800">
+              <h4 className="font-extrabold text-slate-800 dark:text-white text-xs uppercase tracking-wider">
+                Ejercicios normativos de la cláusula {activeTab}
+              </h4>
+              {getExercisesByClause(activeTab).map((exercise) => (
+                <ClauseExercise key={`${currentCompanyId}-${exercise.id}`} exercise={exercise} />
+              ))}
             </div>
           )}
 

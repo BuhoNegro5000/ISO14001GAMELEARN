@@ -141,6 +141,7 @@ export interface GameState extends Omit<CompanyState, 'id' | 'name' | 'sector' |
   xp: number;
   level: number;
   badges: string[];
+  claimedRewards: string[];
   
   // Multi-company architecture
   currentCompanyId: 'metal' | 'chem' | 'power' | 'mine' | 'oil' | 'airport';
@@ -164,6 +165,7 @@ export interface GameState extends Omit<CompanyState, 'id' | 'name' | 'sector' |
   conductTraining: (cost: number) => void;
   investigateIncident: (id: string, correctiveAction: string) => void;
   completeChangeManagement: () => void;
+  awardXp: (key: string, amount: number) => boolean;
   runFinalAudit: () => void;
   resetGame: () => void;
 }
@@ -1396,10 +1398,26 @@ export const useGameStore = create<GameState>((set) => {
 
     // Global player metrics
     xp: 0,
-    level: 1,
-    badges: [],
+  level: 1,
+  badges: [],
+  claimedRewards: [],
 
-    // Action: Switch Active Company
+  awardXp: (key, amount) => {
+    let granted = false;
+    set((state) => {
+      if (state.claimedRewards.includes(`${state.currentCompanyId}:${key}`)) return {};
+      granted = true;
+      const newXp = state.xp + amount;
+      return {
+        xp: newXp,
+        level: Math.max(state.level, Math.floor(newXp / 1000) + 1),
+        claimedRewards: [...state.claimedRewards, `${state.currentCompanyId}:${key}`]
+      };
+    });
+    return granted;
+  },
+  
+  // Action: Switch Active Company
     switchCompany: (companyId: 'metal' | 'chem' | 'power' | 'mine' | 'oil' | 'airport') => set((state) => {
       if (state.currentCompanyId === companyId) return {};
 
@@ -2323,8 +2341,9 @@ export const useGameStore = create<GameState>((set) => {
         // Reset player progression
         xp: 0,
         level: 1,
-        badges: []
-      };
-    })
+  badges: [],
+  claimedRewards: []
+  };
+  })
   };
 });

@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useGameStore } from '@/store/gameStore';
+import DocumentLibrary from '@/components/DocumentLibrary';
+import { documentFormats } from '@/lib/documentFormats';
 import { 
   FileText, Edit3, Download, Eye, CheckCircle, Save, FileSpreadsheet,
   Folder, FolderOpen, Search, Clock, Award
@@ -85,6 +87,45 @@ const folderStructure = [
 ];
 
 export default function DocumentCenter() {
+  const [tab, setTab] = useState<'library' | 'mine'>('library');
+  const tabs = [
+    { id: 'library' as const, label: `Biblioteca de formatos (${documentFormats.length})` },
+    { id: 'mine' as const, label: 'Mis documentos del SGA' },
+  ];
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+        <div>
+          <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-lime-300">Sistema de información documentada · Cláusula 7.5</p>
+          <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">Document Center</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+            Formatos profesionales con encabezado, código, control de versiones y firmas. Llénalos, imprime en PDF o descarga en Word y Excel.
+          </p>
+        </div>
+        <div role="tablist" aria-label="Secciones del centro documental" className="flex gap-1 rounded-2xl bg-white p-1 shadow-sm dark:bg-slate-900">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => setTab(t.id)}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
+                tab === t.id ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {tab === 'library' ? <DocumentLibrary /> : <MyDocuments />}
+    </div>
+  );
+}
+
+function MyDocuments() {
   const { documents, updateDocument, week, currentCompanyId } = useGameStore();
   const [selectedDocId, setSelectedDocId] = useState<string>(documents[0]?.id || '');
   const [isEditing, setIsEditing] = useState(false);

@@ -7,6 +7,11 @@
   to { transform: scaleX(1); }
 }
 
+@keyframes splash-logo {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 :root {
   --background: #f7f8ee;
   --foreground: #12352a;

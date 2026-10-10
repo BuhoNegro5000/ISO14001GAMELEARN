@@ -8,10 +8,13 @@ interface LogoProps {
 export default function Logo({ className = '', iconOnly = false }: LogoProps) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo_GOWL-lZoMBFzv3ekbXEIOVUGXAwbpE090UX.png"
+        src="/brand/green-owl-mark.png"
         alt="Green Owl Labs"
-        className="h-10 w-10 rounded-xl object-cover"
+        width={808}
+        height={838}
+        className="h-11 w-auto object-contain"
       />
       {!iconOnly && (
         <div className="flex flex-col">

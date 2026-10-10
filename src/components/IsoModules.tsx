@@ -887,7 +887,7 @@ export default function IsoModules() {
               </div>
 
               {/* EHS Academy Guide Card */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
+              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
                 <div className="p-2.5 bg-white dark:bg-slate-900 border border-emerald-500/10 rounded-xl text-emerald-500 shrink-0 self-start">
                   <Award className="w-4.5 h-4.5" />
                 </div>
@@ -901,14 +901,14 @@ export default function IsoModules() {
 
               {cl4Step === 1 && (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs text-slate-500 leading-normal">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 1: Diagnóstico FODA/PESTEL Interactivo.</strong> Clasifica cada factor ambiental clave del entorno industrial de la empresa para contextualizar el SGA.
                   </p>
 
                   <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1">
                     {cl4Factors.map((f) => (
-                      <div key={f.id} className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-150 dark:border-slate-850 flex flex-col sm:flex-row justify-between gap-2.5 items-start sm:items-center">
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-350">{f.text}</span>
+                      <div key={f.id} className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between gap-2.5 items-start sm:items-center">
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{f.text}</span>
                         <div className="flex gap-2 w-full sm:w-auto">
                           <select
                             value={cl4PestelClass[f.id]}
@@ -947,7 +947,7 @@ export default function IsoModules() {
                   <div className="flex justify-end gap-2.5 mt-2">
                     <button
                       onClick={handleVerifyCl4Step1}
-                      className="px-4 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-850 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
+                      className="px-4 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
                     >
                       Verificar Diagnóstico
                     </button>
@@ -965,7 +965,7 @@ export default function IsoModules() {
 
               {cl4Step === 2 && (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs text-slate-500 leading-normal">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 2: Enmienda de Acción Climática (2024).</strong> El auditor te interroga sobre la relevancia del cambio climático. Determina la posición legal y estratégica de EnviroPro:
                   </p>
 
@@ -975,7 +975,7 @@ export default function IsoModules() {
                       className={`text-left p-3.5 rounded-xl border text-xs leading-relaxed transition-all cursor-pointer ${
                         cl4ClimateDecision === 1 
                           ? 'border-rose-500 bg-rose-500/5 text-rose-700 dark:text-rose-400' 
-                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300'
+                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <strong>Opción A:</strong> Declarar que la fábrica manufactura bajo techo, por lo que el cambio climático no tiene relevancia en el alcance ni en las operaciones.
@@ -985,7 +985,7 @@ export default function IsoModules() {
                       className={`text-left p-3.5 rounded-xl border text-xs leading-relaxed transition-all cursor-pointer ${
                         cl4ClimateDecision === 2 
                           ? 'border-emerald-500 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold' 
-                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300'
+                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <strong>Opción B:</strong> Reconocer y declarar formalmente los riesgos de inundación extrema en el Patio de Residuos y el estrés hídrico de la cuenca que encarece la captación de agua industrial.
@@ -1014,7 +1014,7 @@ export default function IsoModules() {
 
               {cl4Step === 3 && (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs text-slate-500 leading-normal">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 3: Definición del Alcance (§4.3).</strong> Selecciona qué operaciones de la planta central deben estar integradas bajo el alcance certificado de tu SGA:
                   </p>
 
@@ -1095,7 +1095,7 @@ export default function IsoModules() {
               </div>
 
               {/* EHS Academy Guide Card */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
+              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
                 <div className="p-2.5 bg-white dark:bg-slate-900 border border-purple-500/10 rounded-xl text-purple-500 shrink-0 self-start">
                   <Users className="w-4.5 h-4.5" />
                 </div>
@@ -1109,7 +1109,7 @@ export default function IsoModules() {
 
               {cl5Step === 1 && (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs text-slate-500 leading-normal">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 1: Redacción de la Política de Sostenibilidad.</strong> Para que la Política sea válida ante el organismo certificador, debe contener los compromisos normativos obligatorios. Selecciona cuáles integrar:
                   </p>
 
@@ -1165,7 +1165,7 @@ export default function IsoModules() {
                   <div className="flex justify-end gap-2.5 mt-2">
                     <button
                       onClick={handleVerifyPolicy}
-                      className="px-4 py-2 text-xs font-bold bg-slate-850 hover:bg-slate-900 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
+                      className="px-4 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-900 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
                     >
                       Presentar Borrador al CEO
                     </button>
@@ -1183,12 +1183,12 @@ export default function IsoModules() {
 
               {cl5Step === 2 && (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs text-slate-500 leading-normal">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 2: Organigrama y Asignación de Roles (§5.3).</strong> Analiza el perfil técnico de tus operarios y asígnales las funciones que mejor se ajusten a su competencia para consolidar la rendición de cuentas del SGA.
                   </p>
 
                   <div className="flex flex-col gap-3.5 mt-2 text-xs">
-                    <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-250 dark:border-slate-850 flex flex-col gap-2">
+                    <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
                       <span className="font-bold text-slate-800 dark:text-white">Rol 1: Representante de la Dirección (Informes, mejora general, auditorías del SGA)</span>
                       <select
                         value={cl5Roles.rep}
@@ -1202,7 +1202,7 @@ export default function IsoModules() {
                       </select>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-250 dark:border-slate-850 flex flex-col gap-2">
+                    <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
                       <span className="font-bold text-slate-800 dark:text-white">Rol 2: Control Operacional (Filtros, efluentes, segregación de residuos)</span>
                       <select
                         value={cl5Roles.ops}
@@ -1216,7 +1216,7 @@ export default function IsoModules() {
                       </select>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-250 dark:border-slate-850 flex flex-col gap-2">
+                    <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col gap-2">
                       <span className="font-bold text-slate-800 dark:text-white">Rol 3: Coordinación de Emergencias (Simulacros, extintores, kits antiderrames)</span>
                       <select
                         value={cl5Roles.emerg}
@@ -1269,7 +1269,7 @@ export default function IsoModules() {
               </div>
 
               {/* EHS Academy Guide Card */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
+              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
                 <div className="p-2.5 bg-white dark:bg-slate-900 border border-amber-500/10 rounded-xl text-amber-500 shrink-0 self-start">
                   <Award className="w-4.5 h-4.5" />
                 </div>
@@ -1283,13 +1283,13 @@ export default function IsoModules() {
                 <div className="flex gap-1.5 text-[10px] font-bold">
                   <span 
                     onClick={() => { if (cl6Scenario >= 4) setCl6Scenario(1); }}
-                    className={`px-2 py-0.5 rounded cursor-pointer ${cl6Scenario <= 3 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-450' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}
+                    className={`px-2 py-0.5 rounded cursor-pointer ${cl6Scenario <= 3 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}
                   >
                     Paso 1: Aspectos
                   </span>
                   <span 
                     onClick={() => { if (cl6SuccessCount >= 3) setCl6Scenario(4); }}
-                    className={`px-2 py-0.5 rounded ${cl6Scenario === 4 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-450' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'} ${cl6SuccessCount >= 3 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
+                    className={`px-2 py-0.5 rounded ${cl6Scenario === 4 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'} ${cl6SuccessCount >= 3 ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
                   >
                     Paso 2: Cambios (2026)
                   </span>
@@ -1304,7 +1304,7 @@ export default function IsoModules() {
 
                 return (
                   <div className="flex flex-col gap-3 text-xs">
-                    <p className="text-slate-500 leading-normal">
+                    <p className="text-slate-500 dark:text-slate-400 leading-normal">
                       <strong>Cláusula 6.1.2 Lab:</strong> Evalúa los aspectos ambientales significativos de la planta para la empresa actual. Asocia correctamente la Causa Operativa (Aspecto) con el Efecto Ambiental (Impacto) y calcula el puntaje de significancia.
                     </p>
 
@@ -1312,7 +1312,7 @@ export default function IsoModules() {
                       <h5 className="font-bold text-slate-800 dark:text-white uppercase text-[10px] tracking-wider">
                         Área a Evaluar: {currentScenario.title} (Escenario {cl6Scenario} de 3)
                       </h5>
-                      <p className="text-[11px] text-slate-500 leading-normal bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-slate-150 dark:border-slate-850">
+                      <p className="text-[11px] text-slate-500 leading-normal bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                         {currentScenario.desc}
                       </p>
 
@@ -1346,7 +1346,7 @@ export default function IsoModules() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 mt-1.5 border-t border-slate-200/50 dark:border-slate-850 pt-3">
+                      <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 mt-1.5 border-t border-slate-200/50 dark:border-slate-800 pt-3">
                         <div className="flex flex-col gap-1">
                           <label className="text-[9px] font-bold text-slate-400 uppercase">Severidad del Impacto (1-5): {cl6Severity}</label>
                           <input 
@@ -1392,7 +1392,7 @@ export default function IsoModules() {
                         onClick={handleVerifyAspectLab}
                         disabled={!cl6Aspect || !cl6Impact}
                         className={`px-4 py-2 text-xs font-bold rounded-xl text-white cursor-pointer ${
-                          cl6Aspect && cl6Impact ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-200 text-slate-450 cursor-not-allowed'
+                          cl6Aspect && cl6Impact ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                         }`}
                       >
                         Evaluar Significancia (Sev x Prob)
@@ -1405,7 +1405,7 @@ export default function IsoModules() {
 
               {cl6Scenario === 4 && (
                 <div className="flex flex-col gap-3 text-xs">
-                  <div className="bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-150 dark:border-emerald-900/40">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/40">
                     <h5 className="font-extrabold text-emerald-800 dark:text-emerald-400 uppercase text-[10px] tracking-wider mb-1">
                       Escenario de Cambio: {currentCompanyId === 'metal' 
                         ? "Ampliación de la Línea de Troquelado y Pintura Electrostática" 
@@ -1422,8 +1422,8 @@ export default function IsoModules() {
                     </p>
                   </div>
 
-                  <p className="text-slate-500 leading-normal mt-1">
-                    <strong>Cláusula 6.3 Lab (Gestión del Cambio):</strong> Ordena los 5 pasos lógicos para planificar e implementar este cambio sin poner en riesgo el SGA. Usa los botones <span className="font-bold text-slate-700 dark:text-slate-350">▲</span> y <span className="font-bold text-slate-700 dark:text-slate-350">▼</span> para ajustar el orden de los elementos.
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal mt-1">
+                    <strong>Cláusula 6.3 Lab (Gestión del Cambio):</strong> Ordena los 5 pasos lógicos para planificar e implementar este cambio sin poner en riesgo el SGA. Usa los botones <span className="font-bold text-slate-700 dark:text-slate-300">▲</span> y <span className="font-bold text-slate-700 dark:text-slate-300">▼</span> para ajustar el orden de los elementos.
                   </p>
 
                   <div className="flex flex-col gap-2 mt-2">
@@ -1436,7 +1436,7 @@ export default function IsoModules() {
                           <span className="text-slate-400 dark:text-slate-500 font-extrabold text-xs w-6 text-center">{index + 1}</span>
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-800 dark:text-white text-[11px]">{step.title}</span>
-                            <span className="text-[10px] text-slate-450 mt-0.5">{step.desc}</span>
+                            <span className="text-[10px] text-slate-400 mt-0.5">{step.desc}</span>
                           </div>
                         </div>
                         
@@ -1444,14 +1444,14 @@ export default function IsoModules() {
                           <button
                             disabled={index === 0 || changeSuccess}
                             onClick={() => moveStep(index, 'up')}
-                            className="p-1 px-1.5 text-[9px] font-bold bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                            className="p-1 px-1.5 text-[9px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                           >
                             ▲
                           </button>
                           <button
                             disabled={index === changeSteps.length - 1 || changeSuccess}
                             onClick={() => moveStep(index, 'down')}
-                            className="p-1 px-1.5 text-[9px] font-bold bg-white dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                            className="p-1 px-1.5 text-[9px] font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 rounded disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                           >
                             ▼
                           </button>
@@ -1501,7 +1501,7 @@ export default function IsoModules() {
               </div>
 
               {/* EHS Academy Guide Card */}
-              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
+              <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4.5 rounded-2xl flex gap-4 text-xs leading-relaxed shadow-3xs">
                 <div className="p-2.5 bg-white dark:bg-slate-900 border border-sky-500/10 rounded-xl text-sky-500 shrink-0 self-start">
                   <Users className="w-4.5 h-4.5" />
                 </div>
@@ -1515,14 +1515,14 @@ export default function IsoModules() {
 
               {!cl7Success ? (
                 <div className="flex flex-col gap-3 text-xs">
-                  <p className="text-slate-500 leading-normal">
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 1: Mapeo de Matriz de Competencias.</strong> Asigna a cada área de la empresa el taller ambiental adecuado para capacitar a los operarios según sus aspectos y riesgos operacionales.
                   </p>
 
                   <div className="flex flex-col gap-3.5 mt-2">
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Área: Patio de Residuos</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Área: Patio de Residuos</span>
                         <span className="text-[10px] text-slate-400 mt-0.5">Riesgo: Lixiviación y mezcla de residuos peligrosos.</span>
                       </div>
                       <select
@@ -1539,7 +1539,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Área: Mantenimiento</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Área: Mantenimiento</span>
                         <span className="text-[10px] text-slate-400 mt-0.5">Riesgo: Generación de aceites quemados y fugas mecánicas.</span>
                       </div>
                       <select
@@ -1556,7 +1556,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Área: Laboratorio / Efluentes</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Área: Laboratorio / Efluentes</span>
                         <span className="text-[10px] text-slate-400 mt-0.5">Riesgo: Descarga de líquidos ácidos y neutralización.</span>
                       </div>
                       <select
@@ -1589,7 +1589,7 @@ export default function IsoModules() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3 text-xs">
-                  <p className="text-slate-500 leading-normal">
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 2: Entrevista de Toma de Conciencia (Simulación de Auditoría).</strong> El auditor le pregunta a un operario de Producción: <em>&quot;¿Qué compromisos de la política ambiental se aplican a su trabajo diario y qué haría ante un incidente?&quot;</em> Elige la respuesta esperada que demuestre que tu capacitación dio resultados:
                   </p>
 
@@ -1599,7 +1599,7 @@ export default function IsoModules() {
                       className={`text-left p-3.5 rounded-xl border text-xs leading-relaxed transition-all cursor-pointer ${
                         cl7QuizAnswer === 1 
                           ? 'border-emerald-500 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 font-semibold' 
-                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300'
+                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <strong>Opción A:</strong> &quot;Sé que debemos prevenir la contaminación optimizando el uso de energía de las prensas para reducir la huella de carbono y que si ocurre un derrame de lubricante, debo ponerme el EPP y llamar al brigadista usando el absorbente del kit.&quot;
@@ -1608,8 +1608,8 @@ export default function IsoModules() {
                       onClick={() => handleVerifyCl7Step2(2)}
                       className={`text-left p-3.5 rounded-xl border text-xs leading-relaxed transition-all cursor-pointer ${
                         cl7QuizAnswer === 2 
-                          ? 'border-rose-500 bg-rose-500/5 text-rose-700 dark:text-rose-450' 
-                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-300'
+                          ? 'border-rose-500 bg-rose-500/5 text-rose-700 dark:text-rose-400' 
+                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <strong>Opción B:</strong> &quot;No recuerdo exactamente los compromisos firmados, pero mi meta diaria es producir la mayor cantidad de piezas y si hay una fuga, limpio con agua de manguera hacia el caño común rápido.&quot;
@@ -1659,7 +1659,7 @@ export default function IsoModules() {
                 </div>
                 <div>
                   <h5 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs mb-0.5 uppercase tracking-wider">Academia EHS: Cláusula 8 - Control Operacional y Emergencias</h5>
-                  <p className="text-slate-550 dark:text-slate-400">
+                  <p className="text-slate-500 dark:text-slate-400">
                     <strong>Requisito 8.1 y 8.2:</strong> Planificar e implementar procesos de control operacional aplicando la <strong>Jerarquía de Controles</strong> (Sustitución ➔ Ingeniería ➔ Control Administrativo ➔ EPP). Asimismo, bajo el requisito 8.2 se formulan planes de preparación y respuesta rápida ante emergencias ambientales (derrames o incendios) y se ejecutan simulacros periódicos.
                   </p>
                 </div>
@@ -1667,14 +1667,14 @@ export default function IsoModules() {
 
               {cl8Step === 1 && (
                 <div className="flex flex-col gap-3 text-xs">
-                  <p className="text-slate-500 leading-normal">
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 1: Aplicación de la Jerarquía de Controles.</strong> Organiza los siguientes controles ambientales para mitigar la no conformidad de lubricantes vertidos in situ en el taller mecánico:
                   </p>
 
                   <div className="flex flex-col gap-3.5 mt-2">
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Control 1: Cambiar lubricantes de petróleo por bio-degradables</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Control 1: Cambiar lubricantes de petróleo por bio-degradables</span>
                         <span className="text-[10px] text-slate-400">Acción: Eliminar toxicidad molecular.</span>
                       </div>
                       <select
@@ -1692,7 +1692,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Control 2: Construir diques de retención y losa impermeable</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Control 2: Construir diques de retención y losa impermeable</span>
                         <span className="text-[10px] text-slate-400">Acción: Contención física de filtraciones.</span>
                       </div>
                       <select
@@ -1710,7 +1710,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-55 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Control 3: Inspección escrita semanal obligatoria del almacén</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Control 3: Inspección escrita semanal obligatoria del almacén</span>
                         <span className="text-[10px] text-slate-400">Acción: Controles de conducta y registros.</span>
                       </div>
                       <select
@@ -1728,7 +1728,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Control 4: Dotar al técnico de botas químicas y guantes de nitrilo</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Control 4: Dotar al técnico de botas químicas y guantes de nitrilo</span>
                         <span className="text-[10px] text-slate-400">Acción: Resguardo personal final.</span>
                       </div>
                       <select
@@ -1754,7 +1754,7 @@ export default function IsoModules() {
                   <div className="flex justify-end gap-2.5 mt-2">
                     <button
                       onClick={handleVerifyHierarchy}
-                      className="px-4 py-2 text-xs font-bold bg-slate-850 hover:bg-slate-900 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
+                      className="px-4 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-900 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
                     >
                       Verificar Jerarquía
                     </button>
@@ -1772,7 +1772,7 @@ export default function IsoModules() {
 
               {cl8Step === 2 && (
                 <div className="flex flex-col gap-3 text-xs">
-                  <p className="text-slate-500 leading-normal">
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 2: Simulador Interactivo de Emergencias (§8.2).</strong> ¡ALERTA! Se ha quebrado un bidón de ácido de 50L en el laboratorio químico. Toma las decisiones en orden lógico:
                   </p>
 
@@ -1780,7 +1780,7 @@ export default function IsoModules() {
                     <span className="font-bold text-slate-800 dark:text-white uppercase tracking-wider text-[10px]">
                       Fase Actual: {cl8DrillStep === 1 ? 'Seguridad del Brigadista' : cl8DrillStep === 2 ? 'Confinamiento de Sustancia' : 'Disposición de Residuos'}
                     </span>
-                    <p className="text-[11px] leading-relaxed text-slate-500 bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-slate-150 dark:border-slate-850">
+                    <p className="text-[11px] leading-relaxed text-slate-500 bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                       {cl8DrillStep === 1 
                         ? 'El ácido nítrico se expande en el piso de cemento emitiendo gases irritantes. Un operario entra en pánico.' 
                         : cl8DrillStep === 2 
@@ -1791,10 +1791,10 @@ export default function IsoModules() {
                     <div className="flex flex-col gap-2 mt-1">
                       {cl8DrillStep === 1 && !cl8DrillFail && (
                         <>
-                          <button onClick={() => handleDrillOption(1, 'epp')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850">
+                          <button onClick={() => handleDrillOption(1, 'epp')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                             Equiparse EPP con respirador químico de inmediato e identificar la hoja MSDS.
                           </button>
-                          <button onClick={() => handleDrillOption(1, 'wash')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850 text-amber-600 dark:text-amber-500 font-semibold">
+                          <button onClick={() => handleDrillOption(1, 'wash')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-amber-600 dark:text-amber-500 font-semibold">
                             Lavar el derrame arrojándole agua de manguera para diluir el ácido rápidamente.
                           </button>
                         </>
@@ -1802,10 +1802,10 @@ export default function IsoModules() {
 
                       {cl8DrillStep === 2 && !cl8DrillFail && (
                         <>
-                          <button onClick={() => handleDrillOption(2, 'absorbent')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850">
+                          <button onClick={() => handleDrillOption(2, 'absorbent')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                             Rodear el perímetro del derrame con barreras absorbentes del kit y neutralizar con carbonato sódico.
                           </button>
-                          <button onClick={() => handleDrillOption(2, 'flush')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850">
+                          <button onClick={() => handleDrillOption(2, 'flush')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                             Abrir la llave de paso de agua para forzar la dilución hacia el desagüe común.
                           </button>
                         </>
@@ -1813,10 +1813,10 @@ export default function IsoModules() {
 
                       {cl8DrillStep === 3 && !cl8DrillFail && (
                         <>
-                          <button onClick={() => handleDrillOption(3, 'red')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850">
+                          <button onClick={() => handleDrillOption(3, 'red')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                             Disponer los absorbentes en bolsas rojas gruesas y depositarlos en el contenedor de residuos peligrosos.
                           </button>
-                          <button onClick={() => handleDrillOption(3, 'trash')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-250 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850">
+                          <button onClick={() => handleDrillOption(3, 'trash')} className="text-left p-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800">
                             Descartar los paños en el tacho de basura municipal urbana para ahorrar costos de disposición.
                           </button>
                         </>
@@ -1870,7 +1870,7 @@ export default function IsoModules() {
                 </div>
                 <div>
                   <h5 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs mb-0.5 uppercase tracking-wider">Academia EHS: Cláusula 9 - Evaluación del Desempeño</h5>
-                  <p className="text-slate-550 dark:text-slate-400">
+                  <p className="text-slate-500 dark:text-slate-400">
                     <strong>Requisito 9.1 y 9.2:</strong> Realizar el seguimiento, medición, análisis y evaluación del desempeño ambiental de la planta (usando KPIs como consumo energético y tasa de reciclaje). Se deben conducir auditorías internas independientes (§9.2) periódicas para verificar la conformidad con los requisitos del SGA y reportar los hallazgos a la dirección.
                   </p>
                 </div>
@@ -1878,14 +1878,14 @@ export default function IsoModules() {
 
               {cl9Step === 1 && (
                 <div className="flex flex-col gap-3 text-xs">
-                  <p className="text-slate-500 leading-normal">
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 1: Mapeo de Indicadores GRI y Alcances (GHG).</strong> Relaciona los KPIs de la planta industrial con sus respectivos estándares de reporte GRI y alcances de emisiones:
                   </p>
 
                   <div className="flex flex-col gap-3.5 mt-2">
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Consumo eléctrico de la red (43,200 kWh)</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Consumo eléctrico de la red (43,200 kWh)</span>
                         <span className="text-[10px] text-slate-400">KPI: Eficiencia energética.</span>
                       </div>
                       <select
@@ -1903,7 +1903,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Captación y efluente vertido (1.2 m³/t con pH 8.2)</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Captación y efluente vertido (1.2 m³/t con pH 8.2)</span>
                         <span className="text-[10px] text-slate-400">KPI: Control de descargas líquidas al río.</span>
                       </div>
                       <select
@@ -1921,7 +1921,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Consumo de diésel de camiones (Flota Logística Directa)</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Consumo de diésel de camiones (Flota Logística Directa)</span>
                         <span className="text-[10px] text-slate-400">Emisiones Directas de Combustión.</span>
                       </div>
                       <select
@@ -1939,7 +1939,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Emisiones indirectas por la generación eléctrica de la red</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Emisiones indirectas por la generación eléctrica de la red</span>
                         <span className="text-[10px] text-slate-400">Huella eléctrica externa.</span>
                       </div>
                       <select
@@ -1965,7 +1965,7 @@ export default function IsoModules() {
                   <div className="flex justify-end gap-2.5 mt-2">
                     <button
                       onClick={handleVerifyGri}
-                      className="px-4 py-2 text-xs font-bold bg-slate-850 hover:bg-slate-900 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
+                      className="px-4 py-2 text-xs font-bold bg-slate-800 hover:bg-slate-900 dark:bg-slate-200 dark:text-slate-900 rounded-xl text-white cursor-pointer"
                     >
                       Alinear con Estándares GRI
                     </button>
@@ -1983,14 +1983,14 @@ export default function IsoModules() {
 
               {cl9Step === 2 && (
                 <div className="flex flex-col gap-3 text-xs">
-                  <p className="text-slate-500 leading-normal">
+                  <p className="text-slate-500 dark:text-slate-400 leading-normal">
                     <strong>Paso 2: Clasificación de Hallazgos en Auditoría Interna (§9.2).</strong> Actúa como auditor líder y clasifica cada uno de los siguientes hallazgos encontrados en los registros operativos:
                   </p>
 
                   <div className="flex flex-col gap-3.5 mt-2">
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Hallazgo 1: Política ambiental sin firmar por el CEO actual.</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Hallazgo 1: Política ambiental sin firmar por el CEO actual.</span>
                         <span className="text-[10px] text-slate-400">Evidencia: La versión oficial web carece de firma digital.</span>
                       </div>
                       <select
@@ -2007,7 +2007,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Hallazgo 2: Medidores de caudal de vertimiento sin calibración anual.</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Hallazgo 2: Medidores de caudal de vertimiento sin calibración anual.</span>
                         <span className="text-[10px] text-slate-400">Evidencia: Calibración vencida hace 4 meses.</span>
                       </div>
                       <select
@@ -2024,7 +2024,7 @@ export default function IsoModules() {
 
                     <div className="bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
                       <div>
-                        <span className="font-bold text-slate-850 dark:text-white block">Hallazgo 3: Pictogramas de advertencia desgastados en almacén.</span>
+                        <span className="font-bold text-slate-800 dark:text-white block">Hallazgo 3: Pictogramas de advertencia desgastados en almacén.</span>
                         <span className="text-[10px] text-slate-400">Evidencia: Las etiquetas secundarias del suelo se desvanecieron.</span>
                       </div>
                       <select
@@ -2085,20 +2085,20 @@ export default function IsoModules() {
                 </div>
                 <div>
                   <h5 className="font-extrabold text-slate-800 dark:text-slate-200 text-xs mb-0.5 uppercase tracking-wider">Academia EHS: Cláusula 10 - Mejora y Acciones Correctivas</h5>
-                  <p className="text-slate-550 dark:text-slate-400">
+                  <p className="text-slate-500 dark:text-slate-400">
                     <strong>Requisito 10.2 y 10.3:</strong> Cuando ocurra una no conformidad (por ejemplo, incumplimiento legal de vertidos o fallos de control), la empresa debe reaccionar de forma inmediata: determinar la causa raíz del fallo y establecer <strong>acciones correctivas</strong> eficaces para evitar su recurrencia, logrando así la mejora continua del SGA.
                   </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 text-xs">
-                <p className="text-slate-500 leading-normal">
+                <p className="text-slate-500 dark:text-slate-400 leading-normal">
                   <strong>Cláusula 10.2 Lab: Causa Raíz.</strong> Se detectó plomo por encima del LMP legal en el vertimiento hídrico. Reconstruye de forma descendente y lógica los 5 Porqués para identificar la falla sistémica:
                 </p>
 
                 <div className="flex flex-col gap-3.5 mt-2">
                   <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
-                    <span className="font-semibold text-slate-700 dark:text-slate-350">1. ¿Por qué ocurrió la descarga de plomo?</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">1. ¿Por qué ocurrió la descarga de plomo?</span>
                     <select
                       value={cl10Whys.w1}
                       onChange={(e) => setCl10Whys({ ...cl10Whys, w1: e.target.value })}
@@ -2114,7 +2114,7 @@ export default function IsoModules() {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
-                    <span className="font-semibold text-slate-700 dark:text-slate-350">2. ¿Por qué la planta vertió agua sin filtrar?</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">2. ¿Por qué la planta vertió agua sin filtrar?</span>
                     <select
                       value={cl10Whys.w2}
                       onChange={(e) => setCl10Whys({ ...cl10Whys, w2: e.target.value })}
@@ -2130,7 +2130,7 @@ export default function IsoModules() {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
-                    <span className="font-semibold text-slate-700 dark:text-slate-350">3. ¿Por qué el filtro colapsó por lodos?</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">3. ¿Por qué el filtro colapsó por lodos?</span>
                     <select
                       value={cl10Whys.w3}
                       onChange={(e) => setCl10Whys({ ...cl10Whys, w3: e.target.value })}
@@ -2146,7 +2146,7 @@ export default function IsoModules() {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
-                    <span className="font-semibold text-slate-700 dark:text-slate-350">4. ¿Por qué no se le hizo limpieza?</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">4. ¿Por qué no se le hizo limpieza?</span>
                     <select
                       value={cl10Whys.w4}
                       onChange={(e) => setCl10Whys({ ...cl10Whys, w4: e.target.value })}
@@ -2162,7 +2162,7 @@ export default function IsoModules() {
                   </div>
 
                   <div className="bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center gap-3">
-                    <span className="font-semibold text-slate-700 dark:text-slate-350">5. ¿Por qué no tenían órdenes ni roles?</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">5. ¿Por qué no tenían órdenes ni roles?</span>
                     <select
                       value={cl10Whys.w5}
                       onChange={(e) => setCl10Whys({ ...cl10Whys, w5: e.target.value })}
@@ -2207,7 +2207,7 @@ export default function IsoModules() {
         {/* Right Side (2/5): Rich Reference Study Hub */}
         <div className="xl:col-span-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col gap-5 shadow-sm justify-between">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2.5 border-b border-slate-200/60 dark:border-slate-850 pb-3">
+            <div className="flex items-center gap-2.5 border-b border-slate-200/60 dark:border-slate-800 pb-3">
               <BookOpen className="w-5 h-5 text-emerald-500 flex-shrink-0" />
               <div>
                 <h4 className="font-extrabold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider">
@@ -2230,7 +2230,7 @@ export default function IsoModules() {
               {/* Requerimientos */}
               <div className="flex flex-col gap-1.5">
                 <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Requisitos de la Norma</span>
-                <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-3.5 rounded-xl text-slate-600 dark:text-slate-300 flex flex-col gap-2 shadow-2xs">
+                <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl text-slate-600 dark:text-slate-300 flex flex-col gap-2 shadow-2xs">
                   {edu.requirements.map((req, idx) => (
                     <p key={idx} dangerouslySetInnerHTML={{ 
                       __html: req.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
@@ -2244,9 +2244,9 @@ export default function IsoModules() {
                 <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Glosario y Conceptos Clave</span>
                 <div className="flex flex-col gap-2">
                   {edu.definitions.map((d, idx) => (
-                    <div key={idx} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-3 rounded-xl shadow-2xs">
+                    <div key={idx} className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3 rounded-xl shadow-2xs">
                       <span className="font-black text-emerald-600 dark:text-emerald-400 block mb-1 text-[10px] uppercase">{d.term}</span>
-                      <p className="text-slate-500 leading-normal">{d.definition}</p>
+                      <p className="text-slate-500 dark:text-slate-400 leading-normal">{d.definition}</p>
                     </div>
                   ))}
                 </div>
@@ -2255,7 +2255,7 @@ export default function IsoModules() {
               {/* Caso Práctico */}
               <div className="flex flex-col gap-1.5">
                 <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Caso Práctico Industrial</span>
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-3.5 rounded-xl text-slate-650 dark:text-slate-350 leading-relaxed shadow-2xs">
+                <div className="bg-emerald-500/5 border border-emerald-500/10 p-3.5 rounded-xl text-slate-600 dark:text-slate-300 leading-relaxed shadow-2xs">
                   <p>{edu.caseStudy}</p>
                 </div>
               </div>
@@ -2263,7 +2263,7 @@ export default function IsoModules() {
               {/* Tips del Auditor */}
               <div className="flex flex-col gap-1.5">
                 <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Criterio de Auditoría</span>
-                <div className="bg-amber-500/5 border border-amber-500/10 p-3.5 rounded-xl text-slate-650 dark:text-slate-350 leading-relaxed shadow-2xs flex gap-2">
+                <div className="bg-amber-500/5 border border-amber-500/10 p-3.5 rounded-xl text-slate-600 dark:text-slate-300 leading-relaxed shadow-2xs flex gap-2">
                   <ShieldAlert className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                   <p>{edu.auditorTips}</p>
                 </div>
@@ -2272,10 +2272,10 @@ export default function IsoModules() {
           </div>
 
           {/* Bottom stats recap widget */}
-          <div className="border-t border-slate-200 dark:border-slate-850 pt-3 bg-slate-100/50 dark:bg-slate-950/20 p-3.5 rounded-xl flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-3 bg-slate-100/50 dark:bg-slate-950/20 p-3.5 rounded-xl flex justify-between items-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             <div className="flex flex-col">
               <span className="text-slate-400">Progreso</span>
-              <span className="text-slate-850 dark:text-white text-xs mt-0.5">Nivel {level}</span>
+              <span className="text-slate-800 dark:text-white text-xs mt-0.5">Nivel {level}</span>
             </div>
             <div className="flex flex-col items-end">
               <span className="text-slate-400">Puntaje Competencia</span>

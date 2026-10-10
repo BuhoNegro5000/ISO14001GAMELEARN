@@ -1,360 +1,405 @@
-import React, { useEffect } from 'react';
-import { useGameStore } from '@/store/gameStore';
-import { Award, ShieldAlert, BadgeCheck, RefreshCw, Trophy } from 'lucide-react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Award, ArrowRight, BadgeCheck, CheckCircle2, CircleAlert, ClipboardList, FileSearch,
+  Factory, Loader2, RefreshCw, ShieldAlert, Trophy,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useGameStore } from '@/store/gameStore';
+import { useProfileStore } from '@/store/profileStore';
+import {
+  getAuditRequirements, getReadinessScore, isAuditReady,
+  type AuditRequirement, type GameTab,
+} from '@/lib/auditRequirements';
 
-export default function FinalAudit() {
+interface FinalAuditProps {
+  onNavigate?: (tab: GameTab) => void;
+}
+
+const companyIdentity: Record<string, { name: string; legal: string; specialty: string }> = {
+  metal: { name: 'EnviroPro', legal: 'ENVIROPRO METALMECÁNICA S.A.', specialty: 'Manufactura metalmecánica de piezas de alta precisión y montaje de componentes de distribución.' },
+  chem: { name: 'BioChem', legal: 'BIOCHEM AGROQUÍMICA S.A.', specialty: 'Formulación y envasado de soluciones de agroquímicos y plaguicidas de alto desempeño.' },
+  power: { name: 'EcoPower', legal: 'ECOPOWER REFINERÍA S.A.', specialty: 'Refinación de biodiésel y biocombustibles a granel con criterios de descarbonización.' },
+  mine: { name: 'MineGold', legal: 'MINEGOLD AURUM VALLEY S.A.', specialty: 'Explotación de oro a tajo abierto con gestión de cianuro y estabilidad de relaveras.' },
+  oil: { name: 'PetroGlow', legal: 'PETROGLOW OIL & GAS S.A.', specialty: 'Extracción onshore y refinamiento de crudo con control SCADA y biorremediación de suelos.' },
+  airport: { name: 'SkyGate', legal: 'SKYGATE AIRPORT S.A.', specialty: 'Operación aeroportuaria internacional con control de ruido y descarbonización de rampa.' },
+};
+
+const auditSteps = [
+  { label: 'Etapa 1 · Revisión documental', detail: 'El auditor revisa política, matrices y registros del SGA.' },
+  { label: 'Etapa 2 · Verificación en planta', detail: 'Entrevistas, recorrido operativo y muestreo de evidencias.' },
+  { label: 'Decisión del comité de certificación', detail: 'Se consolidan los hallazgos y se emite el dictamen.' },
+];
+
+function ReadinessRing({ value }: { value: number }) {
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+  const ready = value === 100;
+  return (
+    <div className="relative flex h-36 w-36 shrink-0 items-center justify-center" role="img" aria-label={`Preparación para la auditoría: ${value}%`}>
+      <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90">
+        <circle cx="64" cy="64" r={radius} fill="none" strokeWidth="12" className="stroke-slate-200 dark:stroke-slate-800" />
+        <circle
+          cx="64" cy="64" r={radius} fill="none" strokeWidth="12" strokeLinecap="round"
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          className={`transition-all duration-700 ${ready ? 'stroke-emerald-500' : value >= 50 ? 'stroke-amber-500' : 'stroke-rose-500'}`}
+        />
+      </svg>
+      <div className="absolute flex flex-col items-center">
+        <span className="text-3xl font-black text-slate-900 dark:text-white">{value}%</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Preparación</span>
+      </div>
+    </div>
+  );
+}
+
+function RequirementCard({ requirement, onNavigate }: { requirement: AuditRequirement; onNavigate?: (tab: GameTab) => void }) {
+  return (
+    <article
+      className={`flex flex-col gap-3 rounded-2xl border p-4 ${
+        requirement.met
+          ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/30'
+          : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {requirement.met ? (
+          <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-label="Cumplido" />
+        ) : (
+          <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" aria-label="Pendiente" />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-black text-slate-900 dark:text-slate-100">
+            <span className="mr-2 font-mono text-xs text-emerald-700 dark:text-emerald-400">§{requirement.clause}</span>
+            {requirement.title}
+          </p>
+          <p className="mt-0.5 text-xs leading-relaxed text-slate-700 dark:text-slate-300">{requirement.detail}</p>
+        </div>
+        <span className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-black uppercase ${
+          requirement.severity === 'major'
+            ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+            : 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300'
+        }`}>
+          {requirement.severity === 'major' ? 'Mayor' : 'Menor'}
+        </span>
+      </div>
+      <div>
+        <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+          <span>{requirement.progressLabel}</span>
+          <span>{requirement.progress}%</span>
+        </div>
+        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800" role="progressbar" aria-valuenow={requirement.progress} aria-valuemin={0} aria-valuemax={100} aria-label={requirement.title}>
+          <div className={`h-full rounded-full transition-all duration-500 ${requirement.met ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${requirement.progress}%` }} />
+        </div>
+      </div>
+      {!requirement.met && onNavigate && (
+        <button
+          type="button"
+          onClick={() => onNavigate(requirement.tab)}
+          className="inline-flex items-center gap-1.5 self-start rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-black text-white transition hover:bg-emerald-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-lime-300"
+        >
+          {requirement.action} <ArrowRight className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </article>
+  );
+}
+
+export default function FinalAudit({ onNavigate }: FinalAuditProps) {
   const store = useGameStore();
-  const { 
-    currentCompanyId, changeManagementCompleted,
-    certificationStatus, runFinalAudit, resetGame, legalCompliance, 
-    environmentalScore, reputation, awarenessScore, incidents, 
-    climateRelevanceDetermined, documents
+  const {
+    currentCompanyId, certificationStatus, runFinalAudit, resetGame,
+    legalCompliance, environmentalScore, reputation, awarenessScore,
   } = store;
+  const profile = useProfileStore((state) => state.profile);
 
+  const [auditing, setAuditing] = useState(false);
+  const [auditStep, setAuditStep] = useState(0);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const requirements = getAuditRequirements(store);
+  const readiness = getReadinessScore(requirements);
+  const ready = isAuditReady(requirements);
+  const unmet = requirements.filter((r) => !r.met);
+  const majors = unmet.filter((r) => r.severity === 'major');
+  const identity = companyIdentity[currentCompanyId] ?? companyIdentity.metal;
   const certCode = `${currentCompanyId.toUpperCase()}-${String(currentCompanyId.length * 137 + 2401).padStart(6, '0')}`;
 
-  const policyDoc = documents.find(d => d.type === 'policy');
-  const policySigned = policyDoc?.status === 'approved_ceo';
-  const allCompliant = legalCompliance === 100;
-  const aspectMatrixValid = documents.find(d => d.type === 'aspect_matrix')?.status !== 'draft';
-  const openIncidents = incidents.filter(i => i.status === 'open');
-  const trainingComplete = awarenessScore >= 60;
-
-  const isReady = policySigned && allCompliant && aspectMatrixValid && trainingComplete && climateRelevanceDetermined && changeManagementCompleted && openIncidents.length === 0 && environmentalScore >= 65;
+  useEffect(() => {
+    const pending = timers.current;
+    return () => pending.forEach(clearTimeout);
+  }, []);
 
   useEffect(() => {
-    if (certificationStatus === 'certified') {
-      // Trigger confetti explosion on successful certification!
-      const duration = 5 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50 };
-
-      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-      const interval = setInterval(function() {
-        const timeLeft = animationEnd - Date.now();
-
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-
-        const particleCount = 50 * (timeLeft / duration);
-        // since particles fall down, animate a bit higher than they would
-        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-      }, 250);
-
-      return () => clearInterval(interval);
-    }
+    if (certificationStatus !== 'certified') return;
+    const duration = 4000;
+    const end = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 50 };
+    const interval = setInterval(() => {
+      const left = end - Date.now();
+      if (left <= 0) return clearInterval(interval);
+      const count = 40 * (left / duration);
+      confetti({ ...defaults, particleCount: count, origin: { x: Math.random() * 0.2 + 0.1, y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount: count, origin: { x: Math.random() * 0.2 + 0.7, y: Math.random() - 0.2 } });
+    }, 250);
+    return () => clearInterval(interval);
   }, [certificationStatus]);
 
-  const handleStartAudit = () => {
-    runFinalAudit();
+  const startAudit = () => {
+    if (!ready || auditing) return;
+    setAuditing(true);
+    setAuditStep(0);
+    timers.current.push(setTimeout(() => setAuditStep(1), 1400));
+    timers.current.push(setTimeout(() => setAuditStep(2), 2800));
+    timers.current.push(setTimeout(() => {
+      runFinalAudit();
+      setAuditing(false);
+    }, 4200));
   };
 
-  const getMaturityLevel = () => {
+  const maturity = (() => {
     const score = (environmentalScore + legalCompliance + reputation) / 3;
-    if (score >= 90) return { level: 'Nivel 5: Sostenibilidad Optimizada', desc: 'El SGA está plenamente integrado en la estrategia de negocio y la descarbonización es proactiva.' };
-    if (score >= 75) return { level: 'Nivel 4: Gestión Avanzada y Cuantificada', desc: 'Control operacional maduro y reducción medible del impacto ambiental.' };
-    if (score >= 60) return { level: 'Nivel 3: Sistema Conforme y Documentado', desc: 'Cumplimiento legal garantizado y SGA conforme a la norma ISO 14001.' };
-    return { level: 'Nivel 2: Inicial/Reactivo', desc: 'Reacciones ante incidentes y multas legales frecuentes.' };
-  };
+    if (score >= 90) return { level: 'Nivel 5: Sostenibilidad optimizada', desc: 'El SGA está integrado en la estrategia del negocio y la descarbonización es proactiva.' };
+    if (score >= 75) return { level: 'Nivel 4: Gestión avanzada y cuantificada', desc: 'Control operacional maduro y reducción medible del impacto ambiental.' };
+    if (score >= 60) return { level: 'Nivel 3: Sistema conforme y documentado', desc: 'Cumplimiento legal garantizado y SGA conforme a ISO 14001.' };
+    return { level: 'Nivel 2: Inicial o reactivo', desc: 'Reacciones ante incidentes y brechas legales frecuentes.' };
+  })();
+
+  if (auditing) {
+    return (
+      <div className="mx-auto flex max-w-2xl flex-col gap-6 rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900" role="status" aria-live="polite">
+        <div className="flex items-center gap-3">
+          <Loader2 className="h-7 w-7 animate-spin text-emerald-600 dark:text-emerald-400" />
+          <div>
+            <h2 className="text-lg font-black text-slate-900 dark:text-white">Auditoría de certificación en curso</h2>
+            <p className="text-sm text-slate-700 dark:text-slate-300">El organismo certificador está evaluando {identity.name}.</p>
+          </div>
+        </div>
+        <ol className="flex flex-col gap-3">
+          {auditSteps.map((step, index) => {
+            const done = index < auditStep;
+            const current = index === auditStep;
+            return (
+              <li
+                key={step.label}
+                className={`flex items-start gap-3 rounded-2xl border p-4 transition ${
+                  done ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/30'
+                    : current ? 'border-amber-300 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-950/30'
+                      : 'border-slate-200 bg-slate-50 opacity-70 dark:border-slate-800 dark:bg-slate-950/50'
+                }`}
+              >
+                {done ? <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  : current ? <Loader2 className="mt-0.5 h-5 w-5 animate-spin text-amber-600 dark:text-amber-400" />
+                    : <ClipboardList className="mt-0.5 h-5 w-5 text-slate-500 dark:text-slate-400" />}
+                <div>
+                  <p className="text-sm font-black text-slate-900 dark:text-slate-100">{step.label}</p>
+                  <p className="text-xs text-slate-700 dark:text-slate-300">{step.detail}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto h-full min-h-[500px]">
+    <div className="mx-auto flex max-w-5xl flex-col gap-6">
       {certificationStatus === 'preparing' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-3.5 border-b border-slate-100 dark:border-slate-800 pb-4">
-            <Award className="w-8 h-8 text-emerald-500 animate-bounce" />
-            <div>
-              <h2 className="font-extrabold text-slate-800 dark:text-white text-base">
-                Preparación para la Auditoría de Certificación
+        <>
+          <section className="flex flex-col gap-6 rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:p-8">
+            <ReadinessRing value={readiness} />
+            <div className="flex-1">
+              <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400">ISO 14001:2026 · Certificación</p>
+              <h2 className="mt-1 text-balance text-2xl font-black text-slate-900 dark:text-white">
+                {ready ? 'Tu organización está lista para auditarse' : 'Aún no estás listo para solicitar la auditoría'}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Para solicitar la auditoría de certificación ISO 14001:2026 (4ª Edición), debes cumplir rigurosamente todos los requisitos normativos aplicables.
+              <p className="mt-2 text-pretty text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                {ready
+                  ? 'Cumples los 8 requisitos evaluados. Al iniciar, el organismo certificador revisará la documentación y verificará la operación en planta.'
+                  : `Faltan ${unmet.length} requisito(s), de los cuales ${majors.length} generarían una no conformidad mayor y suspenderían la certificación.`}
               </p>
+              <button
+                type="button"
+                onClick={startAudit}
+                disabled={!ready}
+                className={`mt-5 inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black transition ${
+                  ready
+                    ? 'bg-emerald-800 text-white shadow-lg shadow-emerald-900/20 hover:-translate-y-0.5 hover:bg-emerald-700'
+                    : 'cursor-not-allowed bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                }`}
+              >
+                {ready ? 'Iniciar auditoría final de certificación' : 'Completa los requisitos para auditarte'}
+              </button>
             </div>
-          </div>
+          </section>
 
-          {/* Checklist */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-            <div className="flex flex-col gap-3">
-              <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
-                Estructura y Liderazgo
-              </h3>
-              
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 5.2: Política firmada por CEO</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${policySigned ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {policySigned ? 'Listo' : 'Pendiente'}
-                </span>
-              </div>
+          <section aria-label="Etapas de la auditoría" className="grid gap-3 md:grid-cols-2">
+            {([
+              { stage: 'documental', title: 'Etapa 1 · Revisión documental', icon: FileSearch },
+              { stage: 'operational', title: 'Etapa 2 · Verificación en planta', icon: Factory },
+            ] as const).map(({ stage, title, icon: Icon }) => {
+              const items = requirements.filter((r) => r.stage === stage);
+              const passed = items.filter((r) => r.met).length;
+              const ok = passed === items.length;
+              return (
+                <div key={stage} className={`flex items-center gap-3 rounded-2xl border p-4 ${ok ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-500/40 dark:bg-emerald-950/30' : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900'}`}>
+                  <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${ok ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-slate-900 dark:text-slate-100">{title}</p>
+                    <p className="text-xs text-slate-700 dark:text-slate-300">{passed} de {items.length} requisitos superados</p>
+                  </div>
+                </div>
+              );
+            })}
+          </section>
 
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 4.1: Determinación Cambio Climático</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${climateRelevanceDetermined ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {climateRelevanceDetermined ? 'Listo' : 'Pendiente'}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 6.1.2: Aspectos evaluados</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${aspectMatrixValid ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {aspectMatrixValid ? 'Listo' : 'Pendiente'}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 6.3: Planificación de Cambios</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${changeManagementCompleted ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {changeManagementCompleted ? 'Listo' : 'Pendiente'}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
-                Operación y Desempeño
-              </h3>
-
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 6.1.3: Cumplimiento legal (100%)</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${allCompliant ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {legalCompliance}%
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 7.2: Concientización del personal</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${trainingComplete ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {awarenessScore}% (Mín. 60%)
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cláusula 10.2: Incidentes/Desvíos cerrados</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${openIncidents.length === 0 ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400'}`}>
-                  {openIncidents.length} abiertos
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-xs bg-amber-50 dark:bg-slate-950 text-amber-600 dark:text-amber-400 rounded-xl p-4 border border-amber-200/50 dark:border-slate-800 leading-normal flex gap-3 mt-4">
-            <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-            <p>
-              <strong>Recomendación del Auditor:</strong> Si inicias la auditoría sin cumplir los criterios, el sistema registrará una **No Conformidad Mayor** y suspenderá el proceso de certificación. Puedes interactuar con el Consultor Técnico en la consola de IA si necesitas ayuda.
-            </p>
-          </div>
-
-          <button
-            onClick={handleStartAudit}
-            className={`w-full text-xs font-bold py-3.5 rounded-xl mt-6 cursor-pointer shadow-md transition-all ${
-              isReady 
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/10' 
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-650 cursor-not-allowed shadow-none'
-            }`}
-            disabled={!isReady}
-          >
-            {isReady ? 'Iniciar Auditoría Final de Certificación' : 'Requisitos Incompletos para Auditoría'}
-          </button>
-        </div>
+          <section className="grid gap-3 md:grid-cols-2" aria-label="Requisitos de certificación">
+            {requirements.map((requirement) => (
+              <RequirementCard key={requirement.id} requirement={requirement} onNavigate={onNavigate} />
+            ))}
+          </section>
+        </>
       )}
 
       {certificationStatus === 'failed' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
-          <div className="flex items-center gap-3.5 border-b border-slate-100 dark:border-slate-800 pb-4">
-            <ShieldAlert className="w-8 h-8 text-rose-500 animate-pulse" />
+        <section className="flex flex-col gap-5 rounded-3xl border border-rose-300 bg-white p-6 dark:border-rose-500/40 dark:bg-slate-900 md:p-8">
+          <div className="flex items-start gap-3.5">
+            <ShieldAlert className="h-9 w-9 shrink-0 text-rose-600 dark:text-rose-400" />
             <div>
-              <h2 className="font-extrabold text-slate-800 dark:text-white text-base">
-                Auditoría Desaprobada - Certificación Rechazada
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                El organismo certificador detectó no conformidades insalvables en tu Sistema de Gestión Ambiental.
+              <h2 className="text-xl font-black text-slate-900 dark:text-white">Auditoría desaprobada: certificación rechazada</h2>
+              <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
+                El organismo certificador registró {unmet.length} hallazgo(s). Corrige cada uno y solicita una nueva auditoría.
               </p>
             </div>
           </div>
-
-          <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest">
-              Gaps y No Conformidades Registradas:
-            </h3>
-            
-            <div className="flex flex-col gap-2.5">
-              {!policySigned && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Mayor (Cláusula 5.2)</strong>: La Política Ambiental no cuenta con firma legal de la Dirección General.
-                </p>
-              )}
-              {!climateRelevanceDetermined && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Mayor (Cláusula 4.1)</strong>: Falta evaluar y justificar la relevancia de las amenazas del Cambio Climático sobre la planta (Enmienda 2024).
-                </p>
-              )}
-              {legalCompliance < 100 && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Mayor (Cláusula 6.1.3)</strong>: Existen brechas de cumplimiento con legislaciones nacionales de vertimientos o residuos peligrosos.
-                </p>
-              )}
-              {!changeManagementCompleted && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Mayor (Cláusula 6.3)</strong>: No se ha planificado ni estructurado el control del cambio operacional de la planta (requisito clave en ISO 14001:2026).
-                </p>
-              )}
-              {awarenessScore < 60 && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Mayor (Cláusula 7.2)</strong>: Nivel de conciencia del personal insatisfactorio para sostener el SGA.
-                </p>
-              )}
-              {openIncidents.length > 0 && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Menor (Cláusula 10.2)</strong>: Existen incidentes y fallas operativas activas no resueltas.
-                </p>
-              )}
-              {environmentalScore < 65 && (
-                <p className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 p-3 rounded-xl border border-rose-150/40 dark:border-rose-900/30">
-                  🔴 <strong>No Conformidad Menor (Cláusula 9.1)</strong>: El desempeño y monitoreo de los aspectos ambientales muestra alta vulnerabilidad operativa.
-                </p>
-              )}
-            </div>
-          </div>
-
+          {unmet.length === 0 ? (
+            <p className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+              Todos los requisitos ya se cumplen ahora. Puedes reintentar la auditoría.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {unmet.map((requirement) => (
+                <li key={requirement.id} className="flex flex-col gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 dark:border-rose-500/30 dark:bg-rose-950/30 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-slate-900 dark:text-slate-100">
+                    <strong className="text-rose-800 dark:text-rose-300">
+                      No conformidad {requirement.severity === 'major' ? 'mayor' : 'menor'} · Cláusula {requirement.clause}:
+                    </strong>{' '}
+                    {requirement.finding}
+                  </p>
+                  {onNavigate && (
+                    <button
+                      type="button"
+                      onClick={() => onNavigate(requirement.tab)}
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-black text-white transition hover:bg-emerald-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-lime-300"
+                    >
+                      {requirement.action} <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
           <button
+            type="button"
             onClick={() => useGameStore.setState({ certificationStatus: 'preparing' })}
-            className="w-full text-xs font-bold py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-800 py-3.5 text-sm font-black text-white transition hover:bg-emerald-700"
           >
-            <RefreshCw className="w-4 h-4" /> Volver a Intentar
+            <RefreshCw className="h-4 w-4" /> Volver a preparar la auditoría
           </button>
-        </div>
+        </section>
       )}
 
       {certificationStatus === 'certified' && (
         <div className="flex flex-col gap-6">
-          {/* Certificate */}
-          <div className="bg-white dark:bg-slate-900 border-4 border-double border-emerald-500 rounded-3xl p-8 shadow-xl relative overflow-hidden flex flex-col items-center text-center gap-5">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full translate-x-10 -translate-y-10" />
-            
-            <div className="flex justify-between w-full border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div className="flex flex-col text-left">
-                <span className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">
-                  {currentCompanyId === 'metal' ? 'ENVIRO' : 
-                   currentCompanyId === 'chem' ? 'BIO' : 
-                   currentCompanyId === 'power' ? 'ECO' : 
-                   currentCompanyId === 'mine' ? 'MINE' :
-                   currentCompanyId === 'oil' ? 'PETRO' : 'SKY'}<span className="text-emerald-500">{
-                     currentCompanyId === 'metal' ? 'PRO' : 
-                     currentCompanyId === 'chem' ? 'CHEM' : 
-                     currentCompanyId === 'power' ? 'POWER' : 
-                     currentCompanyId === 'mine' ? 'GOLD' :
-                     currentCompanyId === 'oil' ? 'GLOW' : 'GATE'
-                   }</span>
-                </span>
-                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Sistemas Ambientales</span>
+          <section className="relative flex flex-col items-center gap-5 overflow-hidden rounded-3xl border-4 border-double border-emerald-500 bg-white p-8 text-center shadow-xl dark:bg-slate-900">
+            <div className="flex w-full items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+              <div className="text-left">
+                <p className="text-xl font-black tracking-tight text-slate-900 dark:text-white">{identity.name}</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">Sistemas ambientales</p>
               </div>
-              <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950 rounded px-2.5 py-1 flex items-center gap-1">
-                <BadgeCheck className="w-3.5 h-3.5" /> CERTIFICADO OFICIAL
+              <span className="flex items-center gap-1 rounded bg-emerald-100 px-2.5 py-1 text-xs font-black text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                <BadgeCheck className="h-4 w-4" /> Certificado oficial
               </span>
             </div>
-
-            <Award className="w-16 h-16 text-emerald-500 mt-4 animate-spin [animation-duration:10s]" />
-
-            <h1 className="font-serif font-black text-slate-800 dark:text-white text-2xl tracking-wide uppercase mt-2">
-              Certificado de Conformidad
-            </h1>
-            <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold -mt-2">
-              Se otorga con orgullo el presente reconocimiento a:
+            <Award className="h-16 w-16 text-emerald-600 dark:text-emerald-400" />
+            <h1 className="font-serif text-3xl font-black uppercase tracking-wide text-slate-900 dark:text-white">Certificado de conformidad</h1>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">Se otorga el presente reconocimiento a</p>
+            <p className="border-b-2 border-emerald-500/40 px-6 pb-1 text-xl font-black text-slate-900 dark:text-white">{identity.legal}</p>
+            <p className="max-w-lg text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+              Por haber implementado, mantenido y mejorado su Sistema de Gestión Ambiental conforme a la norma internacional:
             </p>
-            <p className="font-extrabold text-slate-800 dark:text-white text-xl border-b-2 border-emerald-500/30 px-6 pb-1">
-              {currentCompanyId === 'metal' ? 'ENVIROPRO METALMECÁNICA S.A.' : 
-               currentCompanyId === 'chem' ? 'BIOCHEM AGROQUÍMICA S.A.' : 
-               currentCompanyId === 'power' ? 'ECOPOWER REFINERÍA S.A.' :
-               currentCompanyId === 'mine' ? 'MINEGOLD AURUM VALLEY S.A.' :
-               currentCompanyId === 'oil' ? 'PETROGLOW OIL & GAS S.A.' : 'SKYGATE AIRPORT S.A.'}
+            <p className="rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-2 text-sm font-black text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+              ISO 14001:2026 (4ª edición)
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed">
-              Por haber implementado, mantenido y mejorado con éxito su Sistema de Gestión Ambiental bajo la norma internacional:
-            </p>
-            
-            <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/50 dark:border-emerald-900 rounded-2xl px-5 py-2">
-              ISO 14001:2026 (4ª Edición)
-            </p>
-            
-            <p className="text-[10px] text-slate-400 max-w-sm mt-2">
-              Especialidad: {currentCompanyId === 'metal' 
-                ? 'Manufactura metalmecánica de piezas de alta precisión y montaje de componentes de distribución.' 
-                : currentCompanyId === 'chem'
-                  ? 'Formulación y envasado de soluciones de agroquímicos y plaguicidas de alto desempeño.'
-                  : currentCompanyId === 'power'
-                    ? 'Refinación de biodiésel y biocombustibles a granel con criterios de descarbonización.'
-                    : currentCompanyId === 'mine'
-                      ? 'Exploración y explotación de oro a tajo abierto con gestión de cianuro y estabilidad de relaveras.'
-                      : currentCompanyId === 'oil'
-                        ? 'Extracción onshore y refinamiento de crudo con control SCADA y biorremediación de suelos.'
-                        : 'Operación aeroportuaria internacional con control de ruido y descarbonización de rampa (GSE).'}
-            </p>
-
-            <div className="grid grid-cols-2 gap-12 w-full mt-6 border-t border-slate-100 dark:border-slate-800 pt-6">
+            <p className="max-w-sm text-xs text-slate-700 dark:text-slate-300">Alcance: {identity.specialty}</p>
+            <div className="mt-4 grid w-full grid-cols-2 gap-8 border-t border-slate-200 pt-6 dark:border-slate-800">
               <div className="flex flex-col items-center">
-                <div className="w-32 border-b border-slate-300 dark:border-slate-700 h-10 flex items-end justify-center font-serif italic text-xs text-slate-600 dark:text-slate-400">
-                  Lead Auditor IA
-                </div>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Lead Auditor</span>
+                <div className="flex h-10 w-36 items-end justify-center border-b border-slate-400 font-serif text-sm italic text-slate-800 dark:border-slate-600 dark:text-slate-200">Lead Auditor IA</div>
+                <span className="mt-1 text-[11px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">Auditor líder</span>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-32 border-b border-slate-300 dark:border-slate-700 h-10 flex items-end justify-center font-serif italic text-xs text-slate-600 dark:text-slate-400">
-                  ✍️ CEO
+                <div className="flex h-10 w-36 items-end justify-center border-b border-slate-400 font-serif text-sm italic text-slate-800 dark:border-slate-600 dark:text-slate-200">
+                  {profile?.name ?? 'Responsable del SGA'}
                 </div>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Alta Dirección</span>
+                <span className="mt-1 text-[11px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400">Responsable del SGA</span>
               </div>
             </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Emisión: {new Date().toISOString().split('T')[0]} · Código CERT-ISO-14001-{certCode}
+            </p>
+          </section>
 
-            <div className="text-[9px] text-slate-400 dark:text-slate-500 mt-4">
-              Fecha de emisión: {new Date().toISOString().split('T')[0]} | Código: CERT-ISO-14001-{certCode}
-            </div>
-          </div>
-
-          {/* Performance Report */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col gap-4">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-amber-500" /> Reporte de Logros y Desempeño
+          <section className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+            <h3 className="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-slate-100">
+              <Trophy className="h-5 w-5 text-amber-500" /> Reporte de logros y desempeño
             </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-850">
-                <p className="text-[10px] text-slate-400 uppercase font-bold">Maturity Score</p>
-                <p className="font-black text-slate-800 dark:text-white text-base mt-0.5">{getMaturityLevel().level}</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{getMaturityLevel().desc}</p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400">Nivel de madurez</p>
+                <p className="mt-0.5 text-base font-black text-slate-900 dark:text-white">{maturity.level}</p>
+                <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{maturity.desc}</p>
               </div>
-
-              <div className="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-100 dark:border-slate-850">
-                <p className="text-[10px] text-slate-400 uppercase font-bold">Resumen de Parámetros Finales</p>
-                <div className="flex flex-col gap-1.5 mt-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Reputación Corporativa:</span>
-                    <span className="font-bold text-emerald-500">{reputation}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Cumplimiento Regulatorio:</span>
-                    <span className="font-bold text-emerald-500">{legalCompliance}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Capacitación y Conciencia:</span>
-                    <span className="font-bold text-emerald-500">{awarenessScore}%</span>
-                  </div>
-                </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                <p className="text-[11px] font-bold uppercase text-slate-600 dark:text-slate-400">Parámetros finales</p>
+                <dl className="mt-2 flex flex-col gap-1.5 text-sm">
+                  {[
+                    ['Reputación corporativa', reputation],
+                    ['Cumplimiento regulatorio', legalCompliance],
+                    ['Capacitación y conciencia', awarenessScore],
+                    ['Score ambiental', environmentalScore],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between">
+                      <dt className="text-slate-700 dark:text-slate-300">{label}</dt>
+                      <dd className="font-black text-emerald-700 dark:text-emerald-400">{value}%</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             </div>
-
-            <div className="flex justify-end gap-3 mt-4">
+            <div className="flex flex-wrap justify-end gap-3">
+              {onNavigate && (
+                <button
+                  type="button"
+                  onClick={() => onNavigate('profile')}
+                  className="rounded-xl bg-emerald-800 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700"
+                >
+                  Ver mi perfil
+                </button>
+              )}
               <button
+                type="button"
                 onClick={resetGame}
-                className="text-xs font-bold px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                className="flex items-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2 text-xs font-black text-slate-800 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> Jugar de nuevo
+                <RefreshCw className="h-3.5 w-3.5" /> Jugar de nuevo
               </button>
             </div>
-          </div>
+          </section>
         </div>
       )}
     </div>

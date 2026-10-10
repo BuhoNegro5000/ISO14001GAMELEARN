@@ -177,7 +177,7 @@ export default function DocumentLibrary() {
               </button>
             </li>
           ))}
-          {visible.length === 0 && <li className="px-2 py-4 text-xs italic text-slate-500">Sin coincidencias para esa búsqueda.</li>}
+          {visible.length === 0 && <li className="px-2 py-4 text-xs italic text-slate-500 dark:text-slate-400">Sin coincidencias para esa búsqueda.</li>}
         </ul>
       </aside>
 

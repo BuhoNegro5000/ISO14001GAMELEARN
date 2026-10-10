@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getAuditRequirements, isAuditReady } from '@/lib/auditRequirements';
 import {
   initialAreasMine,
   initialLegalMatrixMine,
@@ -380,7 +381,7 @@ const initialAreasMetal = (): Record<string, CompanyArea> => ({
   off: {
     id: 'off',
     name: 'Oficinas Administrativas',
-    description: 'Ventas, Contabilidad y Finanzas de la organización.',
+    description: 'Ventas, Contabilidad y Finanzas de la organizaci��n.',
     category: 'admin',
     energyUsage: 4500,
     waterUsage: 90,
@@ -2250,23 +2251,8 @@ export const useGameStore = create<GameState>((set) => {
     }),
 
     runFinalAudit: () => set((state) => {
-      const policyDoc = state.documents.find(d => d.type === 'policy');
-      const policySigned = policyDoc?.status === 'approved_ceo';
-      const allCompliant = state.legalMatrix.every(l => l.status === 'compliant');
-      const aspectMatrixValid = state.documents.find(d => d.type === 'aspect_matrix')?.status !== 'draft';
-      const trainingComplete = state.awarenessScore >= 60;
-      const climateDetermined = state.climateRelevanceDetermined;
-      const changeMgmtComplete = state.changeManagementCompleted; // Clause 6.3 check
-
-      const issuesCount = state.incidents.filter(i => i.status === 'open').length;
-
-      let success = false;
-      let status: GameState['certificationStatus'] = 'failed';
-
-      if (policySigned && allCompliant && aspectMatrixValid && trainingComplete && climateDetermined && changeMgmtComplete && issuesCount === 0 && state.environmentalScore >= 65) {
-        success = true;
-        status = 'certified';
-      }
+      const success = isAuditReady(getAuditRequirements(state));
+      const status: GameState['certificationStatus'] = success ? 'certified' : 'failed';
 
       const feedMsg = success 
         ? `🏆 AUDITORÍA CERTIFICADA: ¡Felicidades! ${state.companies[state.currentCompanyId].name} obtuvo la certificación ISO 14001:2026.`

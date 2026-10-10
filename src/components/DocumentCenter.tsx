@@ -315,7 +315,7 @@ function MyDocuments() {
                   className={`w-full flex items-center gap-2.5 p-2.5 rounded-xl text-left text-xs transition-all ${
                     doc.id === selectedDocId
                       ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/10'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <FileText className="w-4 h-4 shrink-0" />
@@ -338,7 +338,7 @@ function MyDocuments() {
                 <div key={folder.name} className="flex flex-col gap-0.5">
                   <button
                     onClick={() => toggleFolder(folder.name)}
-                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-350 text-xs font-black text-left cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-black text-left cursor-pointer transition-colors"
                   >
                     <span className="flex items-center gap-2">
                       {isExpanded ? <FolderOpen className="w-4 h-4 text-amber-500" /> : <Folder className="w-4 h-4 text-amber-500" />}
@@ -348,7 +348,7 @@ function MyDocuments() {
                   </button>
 
                   {isExpanded && (
-                    <div className="flex flex-col gap-1 pl-4 border-l border-slate-100 dark:border-slate-850 ml-3.5 mt-0.5">
+                    <div className="flex flex-col gap-1 pl-4 border-l border-slate-100 dark:border-slate-800 ml-3.5 mt-0.5">
                       {folderDocs.map(doc => {
                         const isSelected = doc.id === selectedDocId;
                         return (
@@ -357,8 +357,8 @@ function MyDocuments() {
                             onClick={() => { setSelectedDocId(doc.id); setIsEditing(false); }}
                             className={`w-full flex items-center justify-between p-2 rounded-xl text-left text-[11px] transition-all border border-transparent ${
                               isSelected
-                                ? 'bg-slate-100 dark:bg-slate-850 border-slate-200/60 dark:border-slate-750 text-slate-850 dark:text-white font-extrabold shadow-3xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850/40'
+                                ? 'bg-slate-100 dark:bg-slate-800 border-slate-200/60 dark:border-slate-700 text-slate-800 dark:text-white font-extrabold shadow-3xs'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
                             }`}
                           >
                             <span className="flex items-center gap-2 truncate">
@@ -385,7 +385,7 @@ function MyDocuments() {
         {selectedDoc ? (
           <div className="flex flex-col h-full">
             {/* Header Panel Toolbar */}
-            <div className="border-b border-slate-150 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-950 flex justify-between items-center gap-2">
+            <div className="border-b border-slate-100 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-950 flex justify-between items-center gap-2">
               <div className="overflow-hidden">
                 <h4 className="font-extrabold text-slate-800 dark:text-white text-xs truncate">
                   {selectedDoc.title}
@@ -407,7 +407,7 @@ function MyDocuments() {
                 ) : (
                   <button
                     onClick={startEdit}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
                   >
                     <Edit3 className="w-3.5 h-3.5" /> Editar
                   </button>
@@ -415,7 +415,7 @@ function MyDocuments() {
 
                 <button
                   onClick={handleExportPDF}
-                  className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-655 dark:text-slate-350 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-655 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
                   title="Imprimir / Exportar a PDF"
                 >
                   <Download className="w-3.5 h-3.5" /> PDF
@@ -424,7 +424,7 @@ function MyDocuments() {
                 {(selectedDoc.type === 'aspect_matrix' || selectedDoc.type === 'legal_matrix') && (
                   <button
                     onClick={handleExportExcel}
-                    className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-655 dark:text-slate-350 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-655 dark:text-slate-300 text-[11px] font-bold rounded-lg cursor-pointer transition-colors"
                     title="Exportar Matriz a CSV/Excel"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" /> CSV
@@ -437,7 +437,7 @@ function MyDocuments() {
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-[400px]">
               
               {/* Left pane: Text Input (HTML editor) */}
-              <div className={`w-full md:w-1/2 p-4 border-r border-slate-100 dark:border-slate-850 flex flex-col gap-2 bg-slate-50 dark:bg-slate-950 ${isEditing ? 'block' : 'hidden md:flex bg-slate-50/50'}`}>
+              <div className={`w-full md:w-1/2 p-4 border-r border-slate-100 dark:border-slate-800 flex flex-col gap-2 bg-slate-50 dark:bg-slate-950 ${isEditing ? 'block' : 'hidden md:flex bg-slate-50/50'}`}>
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                     {isEditing ? 'Editor de Contenido' : 'Editor en Reposo'}
@@ -506,7 +506,7 @@ function MyDocuments() {
             </div>
 
             {/* General Info */}
-            <div className="flex flex-col gap-2.5 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/50 dark:border-slate-850">
+            <div className="flex flex-col gap-2.5 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200/50 dark:border-slate-800">
               <div className="flex flex-col">
                 <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wide">Cláusula ISO</span>
                 <span className="text-xs font-black text-slate-700 dark:text-slate-200 flex items-center gap-1.5 mt-0.5">
@@ -535,7 +535,7 @@ function MyDocuments() {
                 {docMetadata.sdgs.map(sdg => (
                   <span 
                     key={sdg} 
-                    className="text-[9px] font-black px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/10 text-emerald-600 dark:text-emerald-450 rounded-xl"
+                    className="text-[9px] font-black px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl"
                   >
                     {sdg}
                   </span>
@@ -593,7 +593,7 @@ function MyDocuments() {
           </div>
 
           {/* Workflow actions button */}
-          <div className="border-t border-slate-100 dark:border-slate-850 pt-4 mt-4">
+          <div className="border-t border-slate-100 dark:border-slate-800 pt-4 mt-4">
             {selectedDoc.status === 'draft' && (
               <button
                 onClick={() => changeStatus('under_review')}

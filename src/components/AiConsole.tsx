@@ -191,7 +191,7 @@ export default function AiConsole() {
             </h3>
             <button
               onClick={() => setShowApiSettings(!showApiSettings)}
-              className={`p-1.5 rounded-lg border text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-all cursor-pointer ${
+              className={`p-1.5 rounded-lg border text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 transition-all cursor-pointer ${
                 useRealApi 
                   ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-600' 
                   : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
@@ -216,7 +216,7 @@ export default function AiConsole() {
                   }}
                   className={`w-full flex items-start gap-3 p-3 rounded-xl text-left border transition-all ${
                     isSelected
-                      ? 'bg-slate-50 dark:bg-slate-850 border-emerald-500 shadow-sm'
+                      ? 'bg-slate-50 dark:bg-slate-800 border-emerald-500 shadow-sm'
                       : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400'
                   }`}
                 >
@@ -342,7 +342,7 @@ export default function AiConsole() {
                   className={`rounded-2xl p-3 shadow-xs text-xs leading-relaxed ${
                     isUser
                       ? 'bg-emerald-600 text-white rounded-tr-none'
-                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 text-slate-700 dark:text-slate-300 rounded-tl-none prose prose-slate dark:prose-invert max-w-none prose-p:my-1 prose-h3:text-xs prose-h3:font-bold prose-h3:mt-2'
+                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-none prose prose-slate dark:prose-invert max-w-none prose-p:my-1 prose-h3:text-xs prose-h3:font-bold prose-h3:mt-2'
                   }`}
                 >
                   {!isUser ? (
@@ -374,7 +374,7 @@ export default function AiConsole() {
               <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
                 <Bot className="w-3.5 h-3.5 text-emerald-500" />
               </div>
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-2xl rounded-tl-none px-4 py-3 shadow-xs">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-none px-4 py-3 shadow-xs">
                 <div className="flex gap-1.5 items-center">
                   <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" />
                   <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce [animation-delay:0.2s]" />

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import ClauseExercise from '@/components/ClauseExercise';
 import StepTabs from '@/components/StepTabs';
+import FeedbackBox from '@/components/FeedbackBox';
 import { getExercisesByClause, clauseExercises } from '@/lib/clauseExercises';
 
 const companyNames: Record<string, string> = {
@@ -133,6 +134,58 @@ export default function IsoModules() {
 
   const isClaimed = (key: string) => store.claimedRewards.includes(`${currentCompanyId}:${key}`);
 
+  // Resultado de la última evaluación por ejercicio y marcas por campo.
+  // Cualquier cambio de una opción limpia el feedback viejo para poder evaluar de nuevo.
+  const [results, setResults] = useState<Record<string, { ok: boolean; n: number }>>({});
+  const [marks, setMarks] = useState<Record<string, 'ok' | 'bad'>>({});
+
+  const report = (exercise: string, ok: boolean, checkedKeys: string[] = [], wrongKeys: string[] = []) => {
+    setResults((prev) => ({ ...prev, [exercise]: { ok, n: (prev[exercise]?.n ?? 0) + 1 } }));
+    if (checkedKeys.length > 0) {
+      setMarks((prev) => {
+        const next = { ...prev };
+        checkedKeys.forEach((key) => {
+          next[key] = wrongKeys.includes(key) ? 'bad' : 'ok';
+        });
+        return next;
+      });
+    }
+  };
+
+  const clearFeedback = (exercise: string) => {
+    setResults((prev) => {
+      const next = { ...prev };
+      delete next[exercise];
+      return next;
+    });
+    const clearers: Record<string, () => void> = {
+      cl4: () => setCl4Feedback(null),
+      cl5p: () => setCl5PolicyFeedback(null),
+      cl5r: () => setCl5RolesFeedback(null),
+      cl6: () => setCl6Feedback(null),
+      cl6c: () => setChangeFeedback(null),
+      cl7: () => setCl7Feedback(null),
+      cl8h: () => setCl8HierarchyFeedback(null),
+      cl9g: () => setCl9GriFeedback(null),
+      cl9a: () => setCl9AuditFeedback(null),
+      cl10: () => setCl10Feedback(null)
+    };
+    clearers[exercise]?.();
+  };
+
+  const pick = (exercise: string, key: string, apply: () => void) => {
+    setMarks((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+    clearFeedback(exercise);
+    apply();
+  };
+
+  const markCls = (key: string) =>
+    marks[key] === 'bad' ? 'ring-2 ring-rose-500/80' : marks[key] === 'ok' ? 'ring-2 ring-emerald-500/60' : '';
+
   // ==========================================
   // CLAUSE 4 LAB STATE
   // ==========================================
@@ -166,19 +219,22 @@ export default function IsoModules() {
   ];
 
   const handleVerifyCl4Step1 = () => {
-    let errors = 0;
+    const checked: string[] = [];
+    const wrong: string[] = [];
     cl4Factors.forEach(f => {
-      if (cl4PestelClass[f.id] !== f.correctPestel || cl4SwotClass[f.id] !== f.correctSwot) {
-        errors++;
-      }
+      checked.push(`cl4Pestel.${f.id}`, `cl4Swot.${f.id}`);
+      if (cl4PestelClass[f.id] !== f.correctPestel) wrong.push(`cl4Pestel.${f.id}`);
+      if (cl4SwotClass[f.id] !== f.correctSwot) wrong.push(`cl4Swot.${f.id}`);
     });
 
-    if (errors === 0) {
+    if (wrong.length === 0) {
       setCl4Feedback("¡Excelente! Has clasificado todos los factores del entorno correctamente. Comprendes cómo los elementos FODA y PESTEL configuran el contexto organizacional.");
       setCl4Success(true);
+      report('cl4', true, checked, wrong);
       award('cl4-context', 100, 'CLÁUSULA 4.1: FODA/PESTEL completado con éxito.');
     } else {
-      setCl4Feedback(`Tienes desvíos en la clasificación. Revisa los conceptos: recuerda que las multas son Legales/Amenazas, las lluvias extremas son Ambientales/Amenazas y la maquinaria es Tecnológica/Debilidad.`);
+      setCl4Feedback(`Tienes ${wrong.length} de ${checked.length} clasificaciones por corregir (marcadas en rojo). Pista: las multas son Legales/Amenazas, las lluvias extremas son Ambientales/Amenazas y la maquinaria obsoleta es Tecnológica/Debilidad.`);
+      report('cl4', false, checked, wrong);
     }
   };
 
@@ -247,7 +303,8 @@ export default function IsoModules() {
     const { prev, leg, improve, profit, climate } = cl5PolicyCommitments;
     
     if (profit) {
-      setCl5PolicyFeedback("Rechazado por Dirección. La política ambiental no debe incluir metas corporativas puramente comerciales (como maximizar utilidades). Debe centrarse en el desempeño sustentable.");
+      setCl5PolicyFeedback("Rechazado por Dirección. La política ambiental no debe incluir metas corporativas puramente comerciales (como maximizar utilidades). Desmarca ese compromiso y vuelve a presentar el borrador.");
+      report('cl5p', false);
       return;
     }
 
@@ -256,19 +313,33 @@ export default function IsoModules() {
         ? "¡Felicidades! La política incluye los 3 compromisos que exige §5.2 (protección del medio ambiente incluida la prevención de la contaminación, cumplimiento de obligaciones y mejora continua) y además el compromiso climático recomendado tras la Enmienda 1:2024. Lista para la firma del CEO."
         : "La política incluye los 3 compromisos que exige §5.2 y queda aprobada. Recomendación: tras la Enmienda 1:2024, incorporar el compromiso climático fortalece la coherencia con el contexto (§4.1).");
       setCl5PolicySuccess(true);
+      report('cl5p', true);
       const policyDoc = documents.find(d => d.type === 'policy');
       if (policyDoc) {
         store.updateDocument(policyDoc.id, policyDoc.content, 'approved_ceo');
       }
       award('cl5-policy', 100, 'CLÁUSULA 5.2: Política redactada y aprobada por el CEO.');
     } else {
-      setCl5PolicyFeedback("Faltan compromisos que exige la cláusula 5.2: protección del medio ambiente (incluida la prevención de la contaminación), cumplimiento de las obligaciones de cumplimiento y mejora continua del SGA.");
+      const missing = [
+        !prev && 'protección del medio ambiente y prevención de la contaminación',
+        !leg && 'cumplimiento de los requisitos legales y otros',
+        !improve && 'mejora continua del SGA'
+      ].filter(Boolean).join('; ');
+      setCl5PolicyFeedback(`Faltan compromisos que exige la cláusula 5.2: ${missing}. Márcalos y presenta de nuevo.`);
+      report('cl5p', false);
     }
   };
 
   const handleVerifyRoles = () => {
     const { rep, ops, emerg } = cl5Roles;
-    if (rep === 'maria' && ops === 'juan' && emerg === 'carlos') {
+    const checked = ['cl5Roles.rep', 'cl5Roles.ops', 'cl5Roles.emerg'];
+    const wrong = [
+      rep !== 'maria' && 'cl5Roles.rep',
+      ops !== 'juan' && 'cl5Roles.ops',
+      emerg !== 'carlos' && 'cl5Roles.emerg'
+    ].filter(Boolean) as string[];
+    report('cl5r', wrong.length === 0, checked, wrong);
+    if (wrong.length === 0) {
       setCl5RolesFeedback("¡Excelente asignación! Has mapeado las competencias de tu equipo con los roles críticos requeridos para el control operativo y de auditoría interna.");
       setCl5RolesSuccess(true);
       assignRole(0, "Ing. Maria Rojas");
@@ -276,7 +347,7 @@ export default function IsoModules() {
       assignRole(2, "Carlos Gomez");
       award('cl5-roles', 100, 'CLÁUSULA 5.3: Organigrama de roles consolidado.');
     } else {
-      setCl5RolesFeedback("Revisa la asignación de perfiles: María tiene experiencia en auditoría, Juan en procesos químicos de planta y Carlos en MSDS y emergencias químicas en almacén.");
+      setCl5RolesFeedback(`Hay ${wrong.length} rol(es) mal asignado(s). Pista: María domina auditoría interna, Juan los procesos y equipos de planta y Carlos las hojas MSDS y emergencias en almacén.`);
     }
   };
 
@@ -492,12 +563,24 @@ export default function IsoModules() {
     const temp = updated[index];
     updated[index] = updated[targetIndex];
     updated[targetIndex] = temp;
+    setMarks((prev) => {
+      const next = { ...prev };
+      Object.keys(next).filter((key) => key.startsWith('cl6c.')).forEach((key) => delete next[key]);
+      return next;
+    });
+    clearFeedback('cl6c');
     setChangeSteps(updated);
   };
 
   const handleVerifyChangeManagement = () => {
     const isCorrect = changeSteps.every((step, index) => step.order === index + 1);
-    
+    report(
+      'cl6c',
+      isCorrect,
+      changeSteps.map((step) => `cl6c.${step.id}`),
+      changeSteps.filter((step, index) => step.order !== index + 1).map((step) => `cl6c.${step.id}`)
+    );
+
     if (isCorrect) {
       setChangeFeedback("¡Excelente! Has planificado el cambio de manera impecable siguiendo la secuencia preventiva y sistemática exigida por la Cláusula 6.3 de ISO 14001:2026. Al definir primero los aspectos (1) y requisitos legales (2), garantizas que los controles (3), el entrenamiento (4) y la documentación (5) estén alinear antes del arranque. ¡SGA Protegido!");
       setChangeSuccess(true);
@@ -534,7 +617,10 @@ export default function IsoModules() {
     const companyScenarios = aspectScenarios[currentCompanyId as keyof typeof aspectScenarios];
     const currentScenario = companyScenarios[cl6Scenario - 1];
     
-    const isCorrect = cl6Aspect === currentScenario.aspect && cl6Impact === currentScenario.impact;
+    const aspectOk = cl6Aspect === currentScenario.aspect;
+    const impactOk = cl6Impact === currentScenario.impact;
+    const isCorrect = aspectOk && impactOk;
+    report('cl6', isCorrect, ['cl6.aspect', 'cl6.impact'], [!aspectOk && 'cl6.aspect', !impactOk && 'cl6.impact'].filter(Boolean) as string[]);
 
     if (isCorrect) {
       const score = cl6Severity * cl6Probability;
@@ -556,7 +642,8 @@ export default function IsoModules() {
         setCl6AwaitingNext(true);
       }
     } else {
-      setCl6Feedback("Revisa el mapeo. El Aspecto es la causa operativa y el Impacto es el cambio real en el medio ambiente.");
+      const which = !aspectOk && !impactOk ? 'el aspecto y el impacto' : !aspectOk ? 'el aspecto' : 'el impacto';
+      setCl6Feedback(`Revisa ${which} (borde rojo). El Aspecto es la causa operativa de la actividad descrita y el Impacto es el cambio que provoca en el medio ambiente.`);
     }
   };
 
@@ -573,7 +660,13 @@ export default function IsoModules() {
   const [cl7QuizChecked, setCl7QuizChecked] = useState(false);
 
   const handleVerifyCl7Step1 = () => {
-    if (cl7Training.patio === 'segregation' && cl7Training.maint === 'spill' && cl7Training.lab === 'neutralization') {
+    const checked = ['cl7Training.patio', 'cl7Training.maint', 'cl7Training.lab'];
+    const wrong = [
+      cl7Training.patio !== 'segregation' && 'cl7Training.patio',
+      cl7Training.maint !== 'spill' && 'cl7Training.maint',
+      cl7Training.lab !== 'neutralization' && 'cl7Training.lab'
+    ].filter(Boolean) as string[];
+    if (wrong.length === 0) {
       const alreadyTrained = store.claimedRewards.includes(`${currentCompanyId}:cl7-training`);
       if (alreadyTrained) {
         setCl7Success(true);
@@ -581,16 +674,19 @@ export default function IsoModules() {
         return;
       }
       if (budget < 5000) {
-        setCl7Feedback("Presupuesto insuficiente para lanzar el taller ($5,000 requerido). Avanza semanas para recuperar presupuesto o reasigna recursos.");
+        setCl7Feedback("El mapeo es correcto, pero el presupuesto es insuficiente para lanzar el taller ($5,000 requerido). Avanza semanas para recuperar presupuesto y vuelve a presionar el botón.");
+        report('cl7', false, checked, []);
         return;
       }
       setCl7Feedback("¡Competencias validadas! Los temas han sido asignados correctamente a las áreas críticas.");
       setCl7Success(true);
       setCl7Step(2);
+      report('cl7', true, checked, []);
       conductTraining(5000);
       award('cl7-training', 0, 'CLÁUSULA 7.2: Talleres de competencia ejecutados con registros de capacitación.');
     } else {
-      setCl7Feedback("Mapeo incorrecto. Revisa qué tipo de adiestramiento técnico requiere cada operador según su labor.");
+      setCl7Feedback(`Hay ${wrong.length} asignación(es) incorrecta(s) (borde rojo). Revisa qué adiestramiento técnico requiere cada operador según su labor.`);
+      report('cl7', false, checked, wrong);
     }
   };
 
@@ -618,12 +714,20 @@ export default function IsoModules() {
 
   const handleVerifyHierarchy = () => {
     const { substitute, engineering, admin, epp } = cl8Hierarchy;
-    if (substitute === 'bio' && engineering === 'bund' && admin === 'sop' && epp === 'gloves') {
+    const checked = ['cl8Hierarchy.substitute', 'cl8Hierarchy.engineering', 'cl8Hierarchy.admin', 'cl8Hierarchy.epp'];
+    const wrong = [
+      substitute !== 'bio' && 'cl8Hierarchy.substitute',
+      engineering !== 'bund' && 'cl8Hierarchy.engineering',
+      admin !== 'sop' && 'cl8Hierarchy.admin',
+      epp !== 'gloves' && 'cl8Hierarchy.epp'
+    ].filter(Boolean) as string[];
+    report('cl8h', wrong.length === 0, checked, wrong);
+    if (wrong.length === 0) {
       setCl8HierarchyFeedback("¡Excelente! Comprendes el orden de la Jerarquía de Controles, priorizando mitigar los riesgos en su origen antes de depender de elementos de protección.");
       setCl8HierarchySuccess(true);
       award('cl8-hierarchy', 150, 'CLÁUSULA 8.1: Jerarquía de controles aplicada al almacén.');
     } else {
-      setCl8HierarchyFeedback("Asignación incorrecta. Recuerda: Sustitución es cambiar el químico, Ingeniería es la losa física, Administrativo es la inspección escrita y EPP es el equipo del trabajador.");
+      setCl8HierarchyFeedback(`${wrong.length} nivel(es) de la jerarquía mal asignado(s) (borde rojo). Sustitución cambia el químico, Ingeniería es la barrera física, Administrativo es el procedimiento escrito y EPP es el equipo del trabajador.`);
     }
   };
 
@@ -683,7 +787,15 @@ export default function IsoModules() {
 
   const handleVerifyGri = () => {
     const { energy, water, scope1, scope2 } = cl9Gri;
-    if (energy === '302' && water === '303' && scope1 === '305-1' && scope2 === '305-2') {
+    const checked = ['cl9Gri.energy', 'cl9Gri.water', 'cl9Gri.scope1', 'cl9Gri.scope2'];
+    const wrong = [
+      energy !== '302' && 'cl9Gri.energy',
+      water !== '303' && 'cl9Gri.water',
+      scope1 !== '305-1' && 'cl9Gri.scope1',
+      scope2 !== '305-2' && 'cl9Gri.scope2'
+    ].filter(Boolean) as string[];
+    report('cl9g', wrong.length === 0, checked, wrong);
+    if (wrong.length === 0) {
       setCl9GriFeedback("¡Correcto! Has asignado todos los indicadores GRI y alcances de la huella de carbono según el GHG Protocol con precisión.");
       setCl9GriSuccess(true);
       award('cl9-gri', 150, 'CLÁUSULA 9.1.1: KPIs alineados con estándares GRI.');
@@ -692,13 +804,20 @@ export default function IsoModules() {
         store.updateDocument(kpisDoc.id, kpisDoc.content, 'signed');
       }
     } else {
-      setCl9GriFeedback("Asignación incorrecta. GRI 302 es energía, GRI 303 es agua, 305-1 son emisiones directas (Scope 1) y 305-2 indirectas eléctricas (Scope 2).");
+      setCl9GriFeedback(`${wrong.length} indicador(es) mal asignado(s) (borde rojo). GRI 302 es energía, GRI 303 es agua, 305-1 son emisiones directas (Scope 1) y 305-2 indirectas eléctricas (Scope 2).`);
     }
   };
 
   const handleVerifyCl9Audit = () => {
     const { f1, f2, f3 } = cl9Audit;
-    if (f1 === 'ncmayor' && f2 === 'ncmenor' && f3 === 'om') {
+    const checked = ['cl9Audit.f1', 'cl9Audit.f2', 'cl9Audit.f3'];
+    const wrong = [
+      f1 !== 'ncmayor' && 'cl9Audit.f1',
+      f2 !== 'ncmenor' && 'cl9Audit.f2',
+      f3 !== 'om' && 'cl9Audit.f3'
+    ].filter(Boolean) as string[];
+    report('cl9a', wrong.length === 0, checked, wrong);
+    if (wrong.length === 0) {
       setCl9AuditFeedback("¡Auditoría interna validada! Has clasificado correctamente las desviaciones operativas, distinguiendo entre fallas estructurales de la norma y oportunidades de mejora.");
       setCl9AuditSuccess(true);
       award('cl9-audit', 150, 'CLÁUSULA 9.2: Reporte de auditoría interna validado.');
@@ -707,7 +826,7 @@ export default function IsoModules() {
         store.updateDocument(auditDoc.id, auditDoc.content, 'signed');
       }
     } else {
-      setCl9AuditFeedback("Asignación de hallazgos incorrecta. Recuerda: La falta de firma del CEO o la falta de cumplimiento legal son NC Mayores. Una falla de calibración es NC Menor, y sugerencias estéticas son Oportunidades de Mejora.");
+      setCl9AuditFeedback(`${wrong.length} hallazgo(s) mal clasificado(s) (borde rojo). Recuerda: una falla sistémica de la norma o un incumplimiento legal es NC Mayor, una falla puntual como una calibración vencida es NC Menor y una sugerencia es Oportunidad de Mejora.`);
     }
   };
 
@@ -724,7 +843,16 @@ export default function IsoModules() {
 
   const handleVerifyCl10 = () => {
     const { w1, w2, w3, w4, w5 } = cl10Whys;
-    if (w1 === 'q1' && w2 === 'q2' && w3 === 'q3' && w4 === 'q4' && w5 === 'q5') {
+    const checked = ['cl10Whys.w1', 'cl10Whys.w2', 'cl10Whys.w3', 'cl10Whys.w4', 'cl10Whys.w5'];
+    const wrong = [
+      w1 !== 'q1' && 'cl10Whys.w1',
+      w2 !== 'q2' && 'cl10Whys.w2',
+      w3 !== 'q3' && 'cl10Whys.w3',
+      w4 !== 'q4' && 'cl10Whys.w4',
+      w5 !== 'q5' && 'cl10Whys.w5'
+    ].filter(Boolean) as string[];
+    report('cl10', wrong.length === 0, checked, wrong);
+    if (wrong.length === 0) {
       setCl10Feedback("¡Causa Raíz resuelta! Has estructurado el análisis de los 5 Porqués perfectamente. Esto demuestra que los desvíos técnicos (plomo) siempre se originan en brechas organizacionales (falta de inspecciones y procedimientos).");
       setCl10Success(true);
       award('cl10-whys', 150, 'CLÁUSULA 10.2: Análisis de 5 porqués completado.');
@@ -738,7 +866,7 @@ export default function IsoModules() {
         store.updateDocument(actionDoc.id, actionDoc.content, 'signed');
       }
     } else {
-      setCl10Feedback("La cadena lógica de causa y efecto no coincide. Recuerda seguir un flujo descendente: el síntoma (plomo) -> proceso inmediato -> falla de equipo -> falta de mantenimiento -> brecha en el procedimiento.");
+      setCl10Feedback(`Revisa el/los porqué(s) ${wrong.map((k) => k.slice(-1)).join(', ')} (borde rojo). La cadena es descendente: el síntoma (plomo) -> proceso inmediato -> falla de equipo -> falta de mantenimiento -> brecha en el procedimiento.`);
     }
   };
 
@@ -930,8 +1058,8 @@ export default function IsoModules() {
                         <div className="flex gap-2 w-full sm:w-auto">
                           <select
                             value={cl4PestelClass[f.id]}
-                            onChange={(e) => setCl4PestelClass({ ...cl4PestelClass, [f.id]: e.target.value })}
-                            className="text-[10px] p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-1/2 sm:w-28"
+                            onChange={(e) => pick('cl4', `cl4Pestel.${f.id}`, () => setCl4PestelClass({ ...cl4PestelClass, [f.id]: e.target.value }))}
+                            className={`text-[10px] p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-1/2 sm:w-28 ${markCls(`cl4Pestel.${f.id}`)}`}
                           >
                             <option value="">PESTEL...</option>
                             <option value="political">Político</option>
@@ -942,8 +1070,8 @@ export default function IsoModules() {
                           </select>
                           <select
                             value={cl4SwotClass[f.id]}
-                            onChange={(e) => setCl4SwotClass({ ...cl4SwotClass, [f.id]: e.target.value })}
-                            className="text-[10px] p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-1/2 sm:w-28"
+                            onChange={(e) => pick('cl4', `cl4Swot.${f.id}`, () => setCl4SwotClass({ ...cl4SwotClass, [f.id]: e.target.value }))}
+                            className={`text-[10px] p-1.5 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-1/2 sm:w-28 ${markCls(`cl4Swot.${f.id}`)}`}
                           >
                             <option value="">FODA...</option>
                             <option value="strengths">Fortaleza</option>
@@ -956,10 +1084,8 @@ export default function IsoModules() {
                     ))}
                   </div>
 
-                  {cl4Feedback && (
-                    <div className={`text-xs p-3.5 rounded-xl border ${cl4Success ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'}`}>
-                      {cl4Feedback}
-                    </div>
+                  {cl4Feedback && results.cl4 && (
+                    <FeedbackBox ok={results.cl4.ok} attempt={results.cl4.n}>{cl4Feedback}</FeedbackBox>
                   )}
 
                   <div className="flex justify-end gap-2.5 mt-2">
@@ -1146,7 +1272,7 @@ export default function IsoModules() {
                       <input 
                         type="checkbox" 
                         checked={cl5PolicyCommitments.prev} 
-                        onChange={(e) => setCl5PolicyCommitments({ ...cl5PolicyCommitments, prev: e.target.checked })}
+                        onChange={(e) => pick('cl5p', 'cl5p.prev', () => setCl5PolicyCommitments({ ...cl5PolicyCommitments, prev: e.target.checked }))}
                       />
                       <span>Compromiso de protección del medio ambiente y prevención de la contaminación.</span>
                     </label>
@@ -1154,7 +1280,7 @@ export default function IsoModules() {
                       <input 
                         type="checkbox" 
                         checked={cl5PolicyCommitments.leg} 
-                        onChange={(e) => setCl5PolicyCommitments({ ...cl5PolicyCommitments, leg: e.target.checked })}
+                        onChange={(e) => pick('cl5p', 'cl5p.leg', () => setCl5PolicyCommitments({ ...cl5PolicyCommitments, leg: e.target.checked }))}
                       />
                       <span>Compromiso de cumplir con los requisitos legales y otros aplicables.</span>
                     </label>
@@ -1162,7 +1288,7 @@ export default function IsoModules() {
                       <input 
                         type="checkbox" 
                         checked={cl5PolicyCommitments.improve} 
-                        onChange={(e) => setCl5PolicyCommitments({ ...cl5PolicyCommitments, improve: e.target.checked })}
+                        onChange={(e) => pick('cl5p', 'cl5p.improve', () => setCl5PolicyCommitments({ ...cl5PolicyCommitments, improve: e.target.checked }))}
                       />
                       <span>Compromiso de mejora continua del SGA para la mejora del desempeño ambiental.</span>
                     </label>
@@ -1170,7 +1296,7 @@ export default function IsoModules() {
                       <input 
                         type="checkbox" 
                         checked={cl5PolicyCommitments.climate} 
-                        onChange={(e) => setCl5PolicyCommitments({ ...cl5PolicyCommitments, climate: e.target.checked })}
+                        onChange={(e) => pick('cl5p', 'cl5p.climate', () => setCl5PolicyCommitments({ ...cl5PolicyCommitments, climate: e.target.checked }))}
                       />
                       <span>Compromiso de acción climática ante riesgos físicos y de transición (Enmienda 2024).</span>
                     </label>
@@ -1178,16 +1304,14 @@ export default function IsoModules() {
                       <input 
                         type="checkbox" 
                         checked={cl5PolicyCommitments.profit} 
-                        onChange={(e) => setCl5PolicyCommitments({ ...cl5PolicyCommitments, profit: e.target.checked })}
+                        onChange={(e) => pick('cl5p', 'cl5p.profit', () => setCl5PolicyCommitments({ ...cl5PolicyCommitments, profit: e.target.checked }))}
                       />
                       <span className="text-amber-600 dark:text-amber-500 font-semibold">Compromiso de maximizar los dividendos y las utilidades operativas de los socios.</span>
                     </label>
                   </div>
 
-                  {cl5PolicyFeedback && (
-                    <div className={`text-xs p-3.5 rounded-xl border ${cl5PolicySuccess ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                      {cl5PolicyFeedback}
-                    </div>
+                  {cl5PolicyFeedback && results.cl5p && (
+                    <FeedbackBox ok={results.cl5p.ok} attempt={results.cl5p.n}>{cl5PolicyFeedback}</FeedbackBox>
                   )}
 
                   <div className="flex justify-end gap-2.5 mt-2">
@@ -1220,8 +1344,8 @@ export default function IsoModules() {
                       <span className="font-bold text-slate-800 dark:text-white">Rol 1: Representante de la Dirección (Informes, mejora general, auditorías del SGA)</span>
                       <select
                         value={cl5Roles.rep}
-                        onChange={(e) => setCl5Roles({ ...cl5Roles, rep: e.target.value })}
-                        className="p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300"
+                        onChange={(e) => pick('cl5r', 'cl5Roles.rep', () => setCl5Roles({ ...cl5Roles, rep: e.target.value }))}
+                        className={`p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 ${markCls('cl5Roles.rep')}`}
                       >
                         <option value="">Seleccionar perfil...</option>
                         <option value="maria">María Rojas - Ing. EHS con posgrados en Auditoría Interna</option>
@@ -1234,8 +1358,8 @@ export default function IsoModules() {
                       <span className="font-bold text-slate-800 dark:text-white">Rol 2: Control Operacional (Filtros, efluentes, segregación de residuos)</span>
                       <select
                         value={cl5Roles.ops}
-                        onChange={(e) => setCl5Roles({ ...cl5Roles, ops: e.target.value })}
-                        className="p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300"
+                        onChange={(e) => pick('cl5r', 'cl5Roles.ops', () => setCl5Roles({ ...cl5Roles, ops: e.target.value }))}
+                        className={`p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 ${markCls('cl5Roles.ops')}`}
                       >
                         <option value="">Seleccionar perfil...</option>
                         <option value="maria">María Rojas - Ing. EHS con posgrados en Auditoría Interna</option>
@@ -1248,8 +1372,8 @@ export default function IsoModules() {
                       <span className="font-bold text-slate-800 dark:text-white">Rol 3: Coordinación de Emergencias (Simulacros, extintores, kits antiderrames)</span>
                       <select
                         value={cl5Roles.emerg}
-                        onChange={(e) => setCl5Roles({ ...cl5Roles, emerg: e.target.value })}
-                        className="p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300"
+                        onChange={(e) => pick('cl5r', 'cl5Roles.emerg', () => setCl5Roles({ ...cl5Roles, emerg: e.target.value }))}
+                        className={`p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 ${markCls('cl5Roles.emerg')}`}
                       >
                         <option value="">Seleccionar perfil...</option>
                         <option value="maria">María Rojas - Ing. EHS con posgrados en Auditoría Interna</option>
@@ -1259,10 +1383,8 @@ export default function IsoModules() {
                     </div>
                   </div>
 
-                  {cl5RolesFeedback && (
-                    <div className={`text-xs p-3.5 rounded-xl border ${cl5RolesSuccess ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                      {cl5RolesFeedback}
-                    </div>
+                  {cl5RolesFeedback && results.cl5r && (
+                    <FeedbackBox ok={results.cl5r.ok} attempt={results.cl5r.n}>{cl5RolesFeedback}</FeedbackBox>
                   )}
 
                   <div className="flex justify-between items-center mt-3">
@@ -1349,8 +1471,8 @@ export default function IsoModules() {
                           <label className="text-[9px] font-bold text-slate-400 uppercase">Aspecto Ambiental (Causa)</label>
                           <select
                             value={cl6Aspect}
-                            onChange={(e) => setCl6Aspect(e.target.value)}
-                            className="p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px]"
+                            onChange={(e) => pick('cl6', 'cl6.aspect', () => setCl6Aspect(e.target.value))}
+                            className={`p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px] ${markCls('cl6.aspect')}`}
                           >
                             <option value="">Seleccionar aspecto...</option>
                             {allAspects.map((opt: { value: string; label: string }) => (
@@ -1363,8 +1485,8 @@ export default function IsoModules() {
                           <label className="text-[9px] font-bold text-slate-400 uppercase">Impacto Ambiental (Efecto)</label>
                           <select
                             value={cl6Impact}
-                            onChange={(e) => setCl6Impact(e.target.value)}
-                            className="p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px]"
+                            onChange={(e) => pick('cl6', 'cl6.impact', () => setCl6Impact(e.target.value))}
+                            className={`p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px] ${markCls('cl6.impact')}`}
                           >
                             <option value="">Seleccionar impacto...</option>
                             {allImpacts.map((opt: { value: string; label: string }) => (
@@ -1396,10 +1518,8 @@ export default function IsoModules() {
                       </div>
                     </div>
 
-                    {cl6Feedback && (
-                      <div className="text-xs p-3 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-xl">
-                        {cl6Feedback}
-                      </div>
+                    {cl6Feedback && results.cl6 && (
+                      <FeedbackBox ok={results.cl6.ok} attempt={results.cl6.n}>{cl6Feedback}</FeedbackBox>
                     )}
 
                     <div className="flex flex-wrap justify-end gap-2 mt-2">
@@ -1488,11 +1608,9 @@ export default function IsoModules() {
                     ))}
                   </div>
 
-                  {changeFeedback && (
-                    <div className={`text-xs p-3 rounded-xl border ${changeSuccess ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                      {changeFeedback}
-                    </div>
-                  )}
+{changeFeedback && results.cl6c && (
+<FeedbackBox ok={results.cl6c.ok} attempt={results.cl6c.n}>{changeFeedback}</FeedbackBox>
+)}
 
                   <div className="flex justify-end mt-2">
                     {!changeSuccess ? (
@@ -1559,8 +1677,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl7Training.patio}
-                        onChange={(e) => setCl7Training({ ...cl7Training, patio: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl7', 'cl7Training.patio', () => setCl7Training({ ...cl7Training, patio: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl7Training.patio')}`}
                       >
                         <option value="">Seleccionar taller...</option>
                         <option value="spill">Contención de derrames y aceites</option>
@@ -1576,8 +1694,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl7Training.maint}
-                        onChange={(e) => setCl7Training({ ...cl7Training, maint: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl7', 'cl7Training.maint', () => setCl7Training({ ...cl7Training, maint: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl7Training.maint')}`}
                       >
                         <option value="">Seleccionar taller...</option>
                         <option value="spill">Contención de derrames y aceites</option>
@@ -1593,8 +1711,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl7Training.lab}
-                        onChange={(e) => setCl7Training({ ...cl7Training, lab: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl7', 'cl7Training.lab', () => setCl7Training({ ...cl7Training, lab: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl7Training.lab')}`}
                       >
                         <option value="">Seleccionar taller...</option>
                         <option value="spill">Contención de derrames y aceites</option>
@@ -1604,11 +1722,9 @@ export default function IsoModules() {
                     </div>
                   </div>
 
-                  {cl7Feedback && (
-                    <div className="text-xs p-3 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-xl">
-                      {cl7Feedback}
-                    </div>
-                  )}
+{cl7Feedback && results.cl7 && (
+<FeedbackBox ok={results.cl7.ok} attempt={results.cl7.n}>{cl7Feedback}</FeedbackBox>
+)}
 
                   <div className="flex justify-end mt-2">
                     <button
@@ -1715,8 +1831,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl8Hierarchy.substitute}
-                        onChange={(e) => setCl8Hierarchy({ ...cl8Hierarchy, substitute: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40"
+                        onChange={(e) => pick('cl8h', 'cl8Hierarchy.substitute', () => setCl8Hierarchy({ ...cl8Hierarchy, substitute: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40 ${markCls('cl8Hierarchy.substitute')}`}
                       >
                         <option value="">Nivel de control...</option>
                         <option value="substitute">Sustitución</option>
@@ -1733,8 +1849,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl8Hierarchy.engineering}
-                        onChange={(e) => setCl8Hierarchy({ ...cl8Hierarchy, engineering: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40"
+                        onChange={(e) => pick('cl8h', 'cl8Hierarchy.engineering', () => setCl8Hierarchy({ ...cl8Hierarchy, engineering: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40 ${markCls('cl8Hierarchy.engineering')}`}
                       >
                         <option value="">Nivel de control...</option>
                         <option value="substitute">Sustitución</option>
@@ -1751,8 +1867,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl8Hierarchy.admin}
-                        onChange={(e) => setCl8Hierarchy({ ...cl8Hierarchy, admin: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40"
+                        onChange={(e) => pick('cl8h', 'cl8Hierarchy.admin', () => setCl8Hierarchy({ ...cl8Hierarchy, admin: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40 ${markCls('cl8Hierarchy.admin')}`}
                       >
                         <option value="">Nivel de control...</option>
                         <option value="substitute">Sustitución</option>
@@ -1769,8 +1885,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl8Hierarchy.epp}
-                        onChange={(e) => setCl8Hierarchy({ ...cl8Hierarchy, epp: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40"
+                        onChange={(e) => pick('cl8h', 'cl8Hierarchy.epp', () => setCl8Hierarchy({ ...cl8Hierarchy, epp: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-40 ${markCls('cl8Hierarchy.epp')}`}
                       >
                         <option value="">Nivel de control...</option>
                         <option value="substitute">Sustitución</option>
@@ -1781,11 +1897,9 @@ export default function IsoModules() {
                     </div>
                   </div>
 
-                  {cl8HierarchyFeedback && (
-                    <div className={`text-xs p-3.5 rounded-xl border ${cl8HierarchySuccess ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                      {cl8HierarchyFeedback}
-                    </div>
-                  )}
+{cl8HierarchyFeedback && results.cl8h && (
+<FeedbackBox ok={results.cl8h.ok} attempt={results.cl8h.n}>{cl8HierarchyFeedback}</FeedbackBox>
+)}
 
                   <div className="flex justify-end gap-2.5 mt-2">
                     <button
@@ -1930,8 +2044,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Gri.energy}
-                        onChange={(e) => setCl9Gri({ ...cl9Gri, energy: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9g', 'cl9Gri.energy', () => setCl9Gri({ ...cl9Gri, energy: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Gri.energy')}`}
                       >
                         <option value="">Código estándar...</option>
                         <option value="302">GRI 302: Energía</option>
@@ -1948,8 +2062,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Gri.water}
-                        onChange={(e) => setCl9Gri({ ...cl9Gri, water: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9g', 'cl9Gri.water', () => setCl9Gri({ ...cl9Gri, water: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Gri.water')}`}
                       >
                         <option value="">Código estándar...</option>
                         <option value="302">GRI 302: Energía</option>
@@ -1966,8 +2080,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Gri.scope1}
-                        onChange={(e) => setCl9Gri({ ...cl9Gri, scope1: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9g', 'cl9Gri.scope1', () => setCl9Gri({ ...cl9Gri, scope1: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Gri.scope1')}`}
                       >
                         <option value="">Código estándar...</option>
                         <option value="302">GRI 302: Energía</option>
@@ -1984,8 +2098,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Gri.scope2}
-                        onChange={(e) => setCl9Gri({ ...cl9Gri, scope2: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9g', 'cl9Gri.scope2', () => setCl9Gri({ ...cl9Gri, scope2: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Gri.scope2')}`}
                       >
                         <option value="">Código estándar...</option>
                         <option value="302">GRI 302: Energía</option>
@@ -1996,11 +2110,9 @@ export default function IsoModules() {
                     </div>
                   </div>
 
-                  {cl9GriFeedback && (
-                    <div className={`text-xs p-3.5 rounded-xl border ${cl9GriSuccess ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                      {cl9GriFeedback}
-                    </div>
-                  )}
+{cl9GriFeedback && results.cl9g && (
+<FeedbackBox ok={results.cl9g.ok} attempt={results.cl9g.n}>{cl9GriFeedback}</FeedbackBox>
+)}
 
                   <div className="flex justify-end gap-2.5 mt-2">
                     <button
@@ -2035,8 +2147,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Audit.f1}
-                        onChange={(e) => setCl9Audit({ ...cl9Audit, f1: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9a', 'cl9Audit.f1', () => setCl9Audit({ ...cl9Audit, f1: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Audit.f1')}`}
                       >
                         <option value="">Tipo de Hallazgo...</option>
                         <option value="ncmayor">No Conformidad Mayor</option>
@@ -2052,8 +2164,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Audit.f2}
-                        onChange={(e) => setCl9Audit({ ...cl9Audit, f2: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9a', 'cl9Audit.f2', () => setCl9Audit({ ...cl9Audit, f2: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Audit.f2')}`}
                       >
                         <option value="">Tipo de Hallazgo...</option>
                         <option value="ncmayor">No Conformidad Mayor</option>
@@ -2069,8 +2181,8 @@ export default function IsoModules() {
                       </div>
                       <select
                         value={cl9Audit.f3}
-                        onChange={(e) => setCl9Audit({ ...cl9Audit, f3: e.target.value })}
-                        className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44"
+                        onChange={(e) => pick('cl9a', 'cl9Audit.f3', () => setCl9Audit({ ...cl9Audit, f3: e.target.value }))}
+                        className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-44 ${markCls('cl9Audit.f3')}`}
                       >
                         <option value="">Tipo de Hallazgo...</option>
                         <option value="ncmayor">No Conformidad Mayor</option>
@@ -2080,11 +2192,9 @@ export default function IsoModules() {
                     </div>
                   </div>
 
-                  {cl9AuditFeedback && (
-                    <div className={`text-xs p-3.5 rounded-xl border ${cl9AuditSuccess ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                      {cl9AuditFeedback}
-                    </div>
-                  )}
+{cl9AuditFeedback && results.cl9a && (
+<FeedbackBox ok={results.cl9a.ok} attempt={results.cl9a.n}>{cl9AuditFeedback}</FeedbackBox>
+)}
 
                   <div className="flex justify-between items-center mt-3">
                     <button onClick={() => setCl9Step(1)} className="text-xs text-slate-400 hover:text-slate-600 font-bold">Atrás</button>
@@ -2141,8 +2251,8 @@ export default function IsoModules() {
                     <span className="font-semibold text-slate-700 dark:text-slate-300">1. ¿Por qué ocurrió la descarga de plomo?</span>
                     <select
                       value={cl10Whys.w1}
-                      onChange={(e) => setCl10Whys({ ...cl10Whys, w1: e.target.value })}
-                      className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52"
+                      onChange={(e) => pick('cl10', 'cl10Whys.w1', () => setCl10Whys({ ...cl10Whys, w1: e.target.value }))}
+                      className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52 ${markCls('cl10Whys.w1')}`}
                     >
                       <option value="">Seleccionar causa...</option>
                       <option value="q1">El río se contaminó porque la planta de tratamiento vertió agua sin filtrar.</option>
@@ -2157,8 +2267,8 @@ export default function IsoModules() {
                     <span className="font-semibold text-slate-700 dark:text-slate-300">2. ¿Por qué la planta vertió agua sin filtrar?</span>
                     <select
                       value={cl10Whys.w2}
-                      onChange={(e) => setCl10Whys({ ...cl10Whys, w2: e.target.value })}
-                      className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52"
+                      onChange={(e) => pick('cl10', 'cl10Whys.w2', () => setCl10Whys({ ...cl10Whys, w2: e.target.value }))}
+                      className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52 ${markCls('cl10Whys.w2')}`}
                     >
                       <option value="">Seleccionar causa...</option>
                       <option value="q1">El río se contaminó porque la planta de tratamiento vertió agua sin filtrar.</option>
@@ -2173,8 +2283,8 @@ export default function IsoModules() {
                     <span className="font-semibold text-slate-700 dark:text-slate-300">3. ¿Por qué el filtro colapsó por lodos?</span>
                     <select
                       value={cl10Whys.w3}
-                      onChange={(e) => setCl10Whys({ ...cl10Whys, w3: e.target.value })}
-                      className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52"
+                      onChange={(e) => pick('cl10', 'cl10Whys.w3', () => setCl10Whys({ ...cl10Whys, w3: e.target.value }))}
+                      className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52 ${markCls('cl10Whys.w3')}`}
                     >
                       <option value="">Seleccionar causa...</option>
                       <option value="q1">El río se contaminó porque la planta de tratamiento vertió agua sin filtrar.</option>
@@ -2189,8 +2299,8 @@ export default function IsoModules() {
                     <span className="font-semibold text-slate-700 dark:text-slate-300">4. ¿Por qué no se le hizo limpieza?</span>
                     <select
                       value={cl10Whys.w4}
-                      onChange={(e) => setCl10Whys({ ...cl10Whys, w4: e.target.value })}
-                      className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52"
+                      onChange={(e) => pick('cl10', 'cl10Whys.w4', () => setCl10Whys({ ...cl10Whys, w4: e.target.value }))}
+                      className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52 ${markCls('cl10Whys.w4')}`}
                     >
                       <option value="">Seleccionar causa...</option>
                       <option value="q1">El río se contaminó porque la planta de tratamiento vertió agua sin filtrar.</option>
@@ -2205,8 +2315,8 @@ export default function IsoModules() {
                     <span className="font-semibold text-slate-700 dark:text-slate-300">5. ¿Por qué no tenían órdenes ni roles?</span>
                     <select
                       value={cl10Whys.w5}
-                      onChange={(e) => setCl10Whys({ ...cl10Whys, w5: e.target.value })}
-                      className="text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52"
+                      onChange={(e) => pick('cl10', 'cl10Whys.w5', () => setCl10Whys({ ...cl10Whys, w5: e.target.value }))}
+                      className={`text-[10px] p-2 border border-slate-200 dark:border-slate-800 rounded bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 w-52 ${markCls('cl10Whys.w5')}`}
                     >
                       <option value="">Seleccionar causa...</option>
                       <option value="q1">El río se contaminó porque la planta de tratamiento vertió agua sin filtrar.</option>
@@ -2218,11 +2328,9 @@ export default function IsoModules() {
                   </div>
                 </div>
 
-                {cl10Feedback && (
-                  <div className={`text-xs p-3.5 rounded-xl border ${cl10Success ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 'bg-rose-500/10 text-rose-600 border-rose-500/20'}`}>
-                    {cl10Feedback}
-                  </div>
-                )}
+{cl10Feedback && results.cl10 && (
+<FeedbackBox ok={results.cl10.ok} attempt={results.cl10.n}>{cl10Feedback}</FeedbackBox>
+)}
 
                 <div className="flex justify-end mt-2">
                   {!cl10Success ? (

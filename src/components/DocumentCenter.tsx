@@ -88,9 +88,10 @@ const folderStructure = [
 
 export default function DocumentCenter() {
   const [tab, setTab] = useState<'library' | 'mine'>('library');
+  const documentCount = useGameStore((state) => state.documents.length);
   const tabs = [
     { id: 'library' as const, label: `Biblioteca de formatos (${documentFormats.length})` },
-    { id: 'mine' as const, label: 'Mis documentos del SGA' },
+    { id: 'mine' as const, label: `Documentos generados (${documentCount})` },
   ];
 
   return (
@@ -99,29 +100,34 @@ export default function DocumentCenter() {
         <div>
           <p className="font-mono text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-lime-300">Sistema de información documentada · Cláusula 7.5</p>
           <h2 className="mt-2 text-xl font-black text-slate-900 dark:text-white">Document Center</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Formatos profesionales con encabezado, código, control de versiones y firmas. Llénalos, imprime en PDF o descarga en Word y Excel.
-          </p>
+          <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">Aquí están los formatos de trabajo y los documentos que ya generaste durante la partida: política ambiental, matrices, objetivos, procedimientos, emergencias, auditoría y acciones correctivas.</p>
         </div>
         <div role="tablist" aria-label="Secciones del centro documental" className="flex gap-1 rounded-2xl bg-white p-1 shadow-sm dark:bg-slate-900">
           {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${
-                tab === t.id ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-              }`}
-            >
+            <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`rounded-xl px-4 py-2 text-xs font-bold transition-colors ${tab === t.id ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
               {t.label}
             </button>
           ))}
         </div>
       </div>
+      <div className="grid grid-cols-1 gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:grid-cols-2 lg:grid-cols-4">
+        <DocumentBridgeCard title="Política ambiental" detail="Compromisos de protección, cumplimiento y mejora continua · §5.2" icon="policy" onOpen={() => setTab('mine')} />
+        <DocumentBridgeCard title="Matriz de aspectos e impactos" detail="Aspectos significativos y controles operacionales · §6.1.2" icon="matrix" onOpen={() => setTab('mine')} />
+        <DocumentBridgeCard title="Matriz legal y objetivos" detail="Obligaciones de cumplimiento, metas y programas · §6.1.3 / §6.2" icon="legal" onOpen={() => setTab('mine')} />
+        <DocumentBridgeCard title="Auditoría y acciones" detail="Evidencias de evaluación, hallazgos y mejora · §9–10" icon="audit" onOpen={() => setTab('mine')} />
+      </div>
       {tab === 'library' ? <DocumentLibrary /> : <MyDocuments />}
     </div>
+  );
+}
+
+function DocumentBridgeCard({ title, detail, icon, onOpen }: { title: string; detail: string; icon: 'policy' | 'matrix' | 'legal' | 'audit'; onOpen: () => void }) {
+  const Icon = icon === 'policy' ? FileText : icon === 'matrix' ? FileSpreadsheet : icon === 'audit' ? Award : FolderOpen;
+  return (
+    <button type="button" onClick={onOpen} className="group flex min-h-28 flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30">
+      <span className="flex items-center justify-between"><Icon className="h-5 w-5 text-emerald-600 dark:text-lime-300" aria-hidden="true" /><span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 dark:text-lime-300">Abrir</span></span>
+      <span><span className="mt-3 block text-sm font-extrabold text-slate-900 dark:text-white">{title}</span><span className="mt-1 block text-[11px] leading-4 text-slate-500 dark:text-slate-400">{detail}</span></span>
+    </button>
   );
 }
 

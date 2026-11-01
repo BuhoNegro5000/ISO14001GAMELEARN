@@ -181,12 +181,12 @@ export default function AiConsole() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-sm">
+    <div className="ai-console grid grid-cols-1 lg:grid-cols-[18rem_minmax(0,1fr)] h-[min(680px,calc(100vh-9rem))] min-h-[560px] overflow-hidden border border-cyan-300/20 bg-[#0a1526] shadow-[8px_8px_0_rgba(4,9,17,0.65)]">
       {/* Sidebar: Agents selector */}
-      <div className="lg:col-span-1 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between gap-4">
+      <div className="ai-roster border-r border-cyan-300/15 bg-[#0d1b2e] p-4 flex flex-col justify-between gap-5 overflow-y-auto">
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center px-1">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm tracking-wide uppercase">
+            <h3 className="hud-label font-extrabold text-lime-300 text-[10px] tracking-widest uppercase">
               Asistentes de IA
             </h3>
             <button
@@ -214,20 +214,20 @@ export default function AiConsole() {
                     setActiveAgent(key);
                     setIsTyping(false);
                   }}
-                  className={`w-full flex items-start gap-3 p-3 rounded-xl text-left border transition-all ${
+                  className={`group w-full flex items-start gap-3 p-3 text-left border transition-all duration-200 ${
                     isSelected
-                      ? 'bg-slate-50 dark:bg-slate-800 border-emerald-500 shadow-sm'
-                      : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-400'
+                      ? 'bg-[#142c3b] border-lime-300/70 shadow-[4px_4px_0_rgba(213,255,69,0.14)] -translate-y-0.5'
+                      : 'bg-transparent border-white/5 hover:bg-[#12243a] hover:border-cyan-300/35 text-slate-300'
                   }`}
                 >
                   <div className={`p-2 rounded-lg border flex-shrink-0 ${info.color}`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="overflow-hidden">
-                    <p className="font-extrabold text-slate-800 dark:text-slate-100 text-xs">
+                    <p className="font-extrabold text-white text-xs">
                       {info.name}
                     </p>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase mt-0.5">
+                    <p className="hud-label text-[9px] text-cyan-200/70 font-bold uppercase mt-1">
                       {info.role}
                     </p>
                     <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug mt-1.5 line-clamp-2">
@@ -240,14 +240,14 @@ export default function AiConsole() {
           </div>
         </div>
 
-        <div className="text-[10px] bg-slate-50 dark:bg-slate-950 text-slate-400 dark:text-slate-500 rounded-lg p-2.5 border border-slate-200/60 dark:border-slate-800/60 leading-normal flex items-start gap-2">
+        <div className="border border-cyan-300/15 bg-[#091525] p-3 text-[10px] leading-relaxed text-slate-300 flex items-start gap-2">
           <AlertCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
           <span>Pregunta sobre requerimientos, solicita firmas o revisa el estado legal con el asistente correspondiente.</span>
         </div>
       </div>
 
       {/* Main chat interface */}
-      <div className="lg:col-span-3 flex flex-col bg-white dark:bg-slate-900 justify-between h-full relative">
+      <div className="ai-chat flex min-w-0 flex-col bg-[#091525] justify-between h-full relative">
         {/* API Settings Modal overlay */}
         {showApiSettings && (
           <div className="absolute inset-0 bg-white/95 dark:bg-slate-900/95 z-10 p-6 flex flex-col justify-center max-w-md mx-auto gap-4">
@@ -305,7 +305,7 @@ export default function AiConsole() {
         )}
 
         {/* Chat Header */}
-        <div className="border-b border-slate-200 dark:border-slate-800 p-4 bg-slate-50 dark:bg-slate-900/40 flex justify-between items-center">
+        <div className="border-b border-cyan-300/15 p-5 bg-[#0d1b2e] flex justify-between items-center">
           <div className="flex items-center gap-3">
             <span className="text-xl">{agentsInfo[activeAgent].avatar}</span>
             <div>
@@ -320,7 +320,7 @@ export default function AiConsole() {
         </div>
 
         {/* Chat Feed */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[420px] bg-slate-50/50 dark:bg-slate-950/30">
+        <div className="ai-feed flex-1 p-6 overflow-y-auto space-y-5 bg-[#091525] scrollbar-thin">
           {activeMessages.map((msg) => {
             const isUser = msg.sender === 'player';
             return (
@@ -331,8 +331,8 @@ export default function AiConsole() {
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 shadow-sm border ${
                     isUser
-                      ? 'bg-emerald-600 border-emerald-500 text-white'
-                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                      ? 'bg-emerald-400 border-emerald-300 text-slate-950'
+                      : 'bg-[#142c3b] border-cyan-300/25'
                   }`}
                 >
                   {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5 text-emerald-500" />}
@@ -341,8 +341,8 @@ export default function AiConsole() {
                 <div
                   className={`rounded-2xl p-3 shadow-xs text-xs leading-relaxed ${
                     isUser
-                      ? 'bg-emerald-600 text-white rounded-tr-none'
-                      : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-tl-none prose prose-slate dark:prose-invert max-w-none prose-p:my-1 prose-h3:text-xs prose-h3:font-bold prose-h3:mt-2'
+                      ? 'bg-emerald-400 text-slate-950 rounded-tr-none shadow-[4px_4px_0_rgba(213,255,69,0.12)]'
+                      : 'bg-[#12243a] border border-cyan-300/20 text-slate-200 rounded-tl-none prose prose-invert max-w-none prose-p:my-1 prose-h3:text-xs prose-h3:font-bold prose-h3:mt-2 shadow-[4px_4px_0_rgba(4,9,17,0.35)]'
                   }`}
                 >
                   {!isUser ? (
@@ -390,7 +390,7 @@ export default function AiConsole() {
         {/* Input Bar */}
         <form
           onSubmit={handleSendMessage}
-          className="border-t border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900 flex gap-2.5 items-center"
+          className="border-t border-cyan-300/15 p-4 bg-[#0d1b2e] flex gap-2.5 items-center"
         >
           <input
             type="text"
@@ -398,12 +398,12 @@ export default function AiConsole() {
             onChange={(e) => setInputText(e.target.value)}
             disabled={isTyping}
             placeholder={`Escribe tu consulta al ${agentsInfo[activeAgent].name}...`}
-            className="flex-1 text-xs p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 disabled:opacity-50"
+            className="flex-1 text-xs p-3 border border-cyan-300/20 bg-[#091525] text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-lime-300/40 focus:border-lime-300 disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isTyping || !inputText.trim()}
-            className="p-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 text-white rounded-xl shadow-md shadow-emerald-600/10 transition-all cursor-pointer flex items-center justify-center"
+            className="p-3 bg-lime-300 text-slate-950 hover:bg-lime-200 disabled:bg-slate-800 disabled:text-slate-500 transition-all cursor-pointer flex items-center justify-center shadow-[3px_3px_0_rgba(213,255,69,0.15)]"
           >
             <Send className="w-4 h-4" />
           </button>

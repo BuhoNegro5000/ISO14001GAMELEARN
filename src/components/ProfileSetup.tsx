@@ -56,7 +56,7 @@ export default function ProfileSetup({ initial, onSaved, onClose }: ProfileSetup
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-setup-title"
-      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-emerald-950/90 px-4 py-8 backdrop-blur-sm"
+      className="profile-setup fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-emerald-950/90 px-4 py-8 backdrop-blur-sm"
     >
       <div className="relative grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-emerald-200/20 bg-[#f7f8ee] shadow-2xl md:grid-cols-[0.9fr_1.1fr]">
         <div className="relative flex min-h-[320px] flex-col justify-between overflow-hidden bg-emerald-900 p-8 text-white md:p-12">
@@ -64,7 +64,7 @@ export default function ProfileSetup({ initial, onSaved, onClose }: ProfileSetup
           <div className="absolute bottom-12 right-10 h-7 w-7 rotate-45 bg-lime-400" aria-hidden="true" />
           <Logo className="relative" />
           <div className="relative mt-auto pt-16">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.25em] text-lime-300">Learning Lab 02</p>
+            <p className="hud-label text-xs font-bold text-lime-300">Mission briefing / 02</p>
             <h1 className="mt-4 max-w-md text-balance text-4xl font-black leading-[0.98] tracking-tight md:text-5xl">
               Conviértete en arquitecto ambiental.
             </h1>
@@ -91,7 +91,7 @@ export default function ProfileSetup({ initial, onSaved, onClose }: ProfileSetup
               {name.trim() ? getInitials(name) : <UserRound className="h-6 w-6" />}
             </div>
             <div>
-              <h2 id="profile-setup-title" className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-800">
+              <h2 id="profile-setup-title" className="hud-label text-[11px] font-bold text-emerald-800">
                 {initial ? 'Editar perfil' : 'Crea tu perfil de misión'}
               </h2>
               <p className="text-sm text-slate-600">Tu progreso, rango y logros quedan asociados a este perfil.</p>

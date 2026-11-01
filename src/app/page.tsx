@@ -110,7 +110,7 @@ export default function GameMain() {
   } = store;
 
   const [activeTab, setActiveTab] = useState<GameTab>('dashboard');
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [fontScale, setFontScale] = useState<'normal' | 'large'>('normal');
   const [showWelcome, setShowWelcome] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState(0);
@@ -216,8 +216,8 @@ export default function GameMain() {
           <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Calendar className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Turno / Tiempo</span>
-              <span className="max-w-full truncate whitespace-nowrap text-xs font-black">Semana {week} / 52</span>
+              <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Turno / Tiempo</span>
+              <span className="metric-value max-w-full truncate whitespace-nowrap text-sm font-black">Semana {week} / 52</span>
             </div>
           </div>
 
@@ -225,8 +225,8 @@ export default function GameMain() {
           <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Coins className="w-4 h-4 text-amber-500" />
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Presupuesto</span>
-              <span className="max-w-full truncate whitespace-nowrap text-xs font-black">${budget.toLocaleString('es-ES')}</span>
+              <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Presupuesto</span>
+              <span className="metric-value max-w-full truncate whitespace-nowrap text-sm font-black">${budget.toLocaleString('es-ES')}</span>
             </div>
           </div>
 
@@ -234,8 +234,8 @@ export default function GameMain() {
           <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Scale className="w-4 h-4 text-blue-500" />
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Cumplimiento Legal</span>
-              <span className="max-w-full truncate whitespace-nowrap text-xs font-black text-blue-500">{legalCompliance}%</span>
+              <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Cumplimiento Legal</span>
+              <span className="metric-value max-w-full truncate whitespace-nowrap text-sm font-black text-blue-600 dark:text-blue-300">{legalCompliance}%</span>
             </div>
           </div>
 
@@ -243,8 +243,8 @@ export default function GameMain() {
           <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <ShieldCheck className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Score Ambiental</span>
-              <span className={`max-w-full truncate whitespace-nowrap text-xs font-black ${theme.text}`}>{environmentalScore}%</span>
+              <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Score Ambiental</span>
+              <span className={`metric-value max-w-full truncate whitespace-nowrap text-sm font-black ${theme.text}`}>{environmentalScore}%</span>
             </div>
           </div>
 

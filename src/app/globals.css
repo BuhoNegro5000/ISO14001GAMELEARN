@@ -112,27 +112,50 @@ html:not(.dark) .ai-feed {
 html:not(.dark) .ai-roster { background-color: #edf5f0; }
 html:not(.dark) .ai-chat,
 html:not(.dark) .ai-feed { background-color: #f8fbf9; }
-html:not(.dark) .dashboard-shell main [class*="bg-\[#"] { color: #10251f; }
-html:not(.dark) .dashboard-shell main .text-white { color: #10251f; }
-html:not(.dark) .dashboard-shell main .text-slate-300,
-html:not(.dark) .dashboard-shell main .text-slate-400 { color: #45635a; }
+html:not(.dark) .dashboard-shell main .ai-console .text-white,
+html:not(.dark) .dashboard-shell main .ai-console .text-slate-300 { color: #10251f; }
+html:not(.dark) .dashboard-shell main .ai-console .text-slate-400 { color: #45635a; }
 
 .game-stat {
+  position: relative;
   flex: 1 1 9rem;
-  min-height: 3.5rem;
-  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  min-height: 4rem;
+  overflow: hidden;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
+
+.game-stat::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--metric-accent, #16805c) 0 62%, transparent 62%);
+}
+
+.game-stat:nth-of-type(2) { --metric-accent: #16805c; }
+.game-stat:nth-of-type(3) { --metric-accent: #d97706; }
+.game-stat:nth-of-type(4) { --metric-accent: #2563eb; }
+.game-stat:nth-of-type(5) { --metric-accent: #0f9f86; }
+
+.game-stat:hover { transform: translateY(-2px); }
 
 html:not(.dark) .game-stat {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(16, 100, 82, 0.18);
-  box-shadow: 0 4px 14px rgba(16, 100, 82, 0.06);
+  background: #ffffff;
+  border-color: #b8cec2;
+  box-shadow: 0 5px 16px rgba(16, 67, 52, 0.1);
 }
 
+html:not(.dark) .game-stat .metric-label { color: #47665a; }
+html:not(.dark) .game-stat .metric-value { color: #10251f; }
+html:not(.dark) .game-stat .text-blue-600 { color: #1558a6; }
+
 html.dark .game-stat {
-  background: rgba(9, 21, 37, 0.82);
-  border-color: rgba(69, 217, 255, 0.18);
+  background: #0d1b2e;
+  border-color: #1b4963;
 }
+
+html.dark .game-stat .metric-label { color: #8fa9bd; }
+html.dark .game-stat .metric-value { color: #f5f7eb; }
 
 .game-stat:hover {
   border-color: rgba(184, 242, 62, 0.65);

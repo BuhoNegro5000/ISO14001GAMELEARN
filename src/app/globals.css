@@ -121,8 +121,25 @@ html:not(.dark) .dashboard-shell main .ai-console .text-slate-400 { color: #4563
   flex: 1 1 9rem;
   min-height: 4rem;
   overflow: hidden;
+  border-radius: 0.75rem;
   transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
+
+.game-stat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2.25rem;
+  height: 2px;
+  background: var(--metric-accent, #16805c);
+  box-shadow: 2.75rem 0 0 color-mix(in srgb, var(--metric-accent, #16805c) 32%, transparent);
+}
+
+.game-stat .metric-label { line-height: 1.1; }
+.game-stat .metric-value { line-height: 1.1; letter-spacing: -0.015em; }
+.game-profile { min-height: 4rem; border-radius: 0.75rem; }
+.game-profile:hover { transform: translateY(-2px); box-shadow: 0 0 0 3px rgba(184, 242, 62, 0.08); }
 
 .game-stat::after {
   content: "";
@@ -132,10 +149,10 @@ html:not(.dark) .dashboard-shell main .ai-console .text-slate-400 { color: #4563
   background: linear-gradient(90deg, var(--metric-accent, #16805c) 0 62%, transparent 62%);
 }
 
-.game-stat:nth-of-type(2) { --metric-accent: #16805c; }
-.game-stat:nth-of-type(3) { --metric-accent: #d97706; }
-.game-stat:nth-of-type(4) { --metric-accent: #2563eb; }
-.game-stat:nth-of-type(5) { --metric-accent: #0f9f86; }
+.game-stat:nth-of-type(1) { --metric-accent: #16805c; }
+.game-stat:nth-of-type(2) { --metric-accent: #d97706; }
+.game-stat:nth-of-type(3) { --metric-accent: #2563eb; }
+.game-stat:nth-of-type(4) { --metric-accent: #0f9f86; }
 
 .game-stat:hover { transform: translateY(-2px); }
 
@@ -148,6 +165,8 @@ html:not(.dark) .game-stat {
 html:not(.dark) .game-stat .metric-label { color: #47665a; }
 html:not(.dark) .game-stat .metric-value { color: #10251f; }
 html:not(.dark) .game-stat .text-blue-600 { color: #1558a6; }
+html:not(.dark) .game-profile { background: #ffffff; border-color: #b8cec2; }
+html:not(.dark) .game-profile span { color: #165a46; }
 
 html.dark .game-stat {
   background: #0d1b2e;
@@ -156,6 +175,8 @@ html.dark .game-stat {
 
 html.dark .game-stat .metric-label { color: #8fa9bd; }
 html.dark .game-stat .metric-value { color: #f5f7eb; }
+html.dark .game-profile { background: #0d1b2e; border-color: #1b4963; }
+html.dark .game-profile span { color: #d5ff45; }
 
 .game-stat:hover {
   border-color: rgba(184, 242, 62, 0.65);

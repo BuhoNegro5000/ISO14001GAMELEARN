@@ -200,7 +200,7 @@ export default function GameMain() {
             type="button"
             onClick={() => (profile ? setActiveTab('profile') : setShowProfile(true))}
             aria-label={profile ? `Abrir perfil de ${profile.name}` : 'Crear perfil'}
-            className="hidden items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 transition hover:border-emerald-400 dark:border-emerald-500/40 dark:bg-emerald-950/50 dark:hover:border-emerald-400 sm:flex"
+            className="game-profile hidden items-center gap-2.5 border border-emerald-200 bg-emerald-50 px-3 py-1.5 transition hover:border-emerald-400 dark:border-emerald-500/40 dark:bg-emerald-950/50 dark:hover:border-emerald-400 sm:flex"
           >
             {profile ? (
               <span className={`flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black ${avatarClasses[profile.avatar]}`}>{getInitials(profile.name)}</span>
@@ -213,7 +213,7 @@ export default function GameMain() {
             </span>
           </button>
           {/* Week counter */}
-          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-3 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2.5 rounded-xl">
             <Calendar className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
               <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Turno / Tiempo</span>
@@ -222,7 +222,7 @@ export default function GameMain() {
           </div>
 
           {/* Budget */}
-          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-3 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2.5 rounded-xl">
             <Coins className="w-4 h-4 text-amber-500" />
             <div className="flex flex-col">
               <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Presupuesto</span>
@@ -231,7 +231,7 @@ export default function GameMain() {
           </div>
 
           {/* Legal Compliance */}
-          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-3 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2.5 rounded-xl">
             <Scale className="w-4 h-4 text-blue-500" />
             <div className="flex flex-col">
               <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Cumplimiento Legal</span>
@@ -240,7 +240,7 @@ export default function GameMain() {
           </div>
 
           {/* Environmental Score */}
-          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-3 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2.5 rounded-xl">
             <ShieldCheck className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
               <span className="metric-label text-[10px] font-bold uppercase tracking-[0.12em]">Score Ambiental</span>

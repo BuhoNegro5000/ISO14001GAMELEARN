@@ -13,8 +13,8 @@
 }
 
 :root {
-  --background: #08111f;
-  --foreground: #f5f7eb;
+  --background: #f4f7f5;
+  --foreground: #10251f;
   --font-sans: var(--font-geist-sans), Arial, sans-serif;
   --color-ink: #08111f;
   --color-paper: #f5f7eb;
@@ -27,6 +27,11 @@
 }
 
 html { background: var(--background); }
+
+html.dark {
+  --background: #08111f;
+  --foreground: #f5f7eb;
+}
 
 [data-font-scale="large"] { font-size: 118%; }
 [data-font-scale="large"] .text-\[9px\] { font-size: 0.7rem; }
@@ -52,31 +57,86 @@ html { background: var(--background); }
   --color-foreground: var(--foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #090d16;
-    --foreground: #f8fafc;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   background-attachment: fixed;
-  background-image: linear-gradient(rgba(69, 217, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(69, 217, 255, 0.035) 1px, transparent 1px), radial-gradient(circle at 76% 8%, rgba(213, 255, 69, 0.08), transparent 28rem);
+  background-image: linear-gradient(rgba(16, 100, 82, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 100, 82, 0.045) 1px, transparent 1px), radial-gradient(circle at 76% 8%, rgba(23, 107, 77, 0.08), transparent 28rem);
   background-size: 32px 32px, 32px 32px, auto;
 }
 
+html.dark body {
+  background-image: linear-gradient(rgba(69, 217, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(69, 217, 255, 0.035) 1px, transparent 1px), radial-gradient(circle at 76% 8%, rgba(213, 255, 69, 0.08), transparent 28rem);
+}
+
 .dashboard-shell {
-  --shell-border: rgba(69, 217, 255, 0.2);
-  background: #08111f;
-  color: #f5f7eb;
+  --shell-border: rgba(16, 100, 82, 0.18);
+  background: #f4f7f5;
+  color: #10251f;
   overflow-x: clip;
 }
 
+html.dark .dashboard-shell {
+  --shell-border: rgba(69, 217, 255, 0.2);
+  background: #08111f;
+  color: #f5f7eb;
+}
+
+html:not(.dark) .dashboard-shell header {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(16, 100, 82, 0.2);
+  color: #10251f;
+}
+
+html:not(.dark) .dashboard-shell aside {
+  background: #eaf2ee;
+  border-color: rgba(16, 100, 82, 0.2);
+}
+
+html:not(.dark) .hud-grid {
+  background-image: linear-gradient(rgba(16, 100, 82, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 100, 82, 0.06) 1px, transparent 1px);
+}
+
+html:not(.dark) .hud-panel,
+html:not(.dark) .ai-console,
+html:not(.dark) .ai-roster,
+html:not(.dark) .ai-chat,
+html:not(.dark) .ai-feed {
+  background-color: #ffffff;
+  border-color: rgba(16, 100, 82, 0.2);
+  color: #10251f;
+  box-shadow: 5px 5px 0 rgba(16, 100, 82, 0.08);
+}
+
+html:not(.dark) .ai-roster { background-color: #edf5f0; }
+html:not(.dark) .ai-chat,
+html:not(.dark) .ai-feed { background-color: #f8fbf9; }
+html:not(.dark) .dashboard-shell main [class*="bg-\[#"] { color: #10251f; }
+html:not(.dark) .dashboard-shell main .text-white { color: #10251f; }
+html:not(.dark) .dashboard-shell main .text-slate-300,
+html:not(.dark) .dashboard-shell main .text-slate-400 { color: #45635a; }
+
 .game-stat {
   flex: 1 1 9rem;
+  min-height: 3.5rem;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+html:not(.dark) .game-stat {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(16, 100, 82, 0.18);
+  box-shadow: 0 4px 14px rgba(16, 100, 82, 0.06);
+}
+
+html.dark .game-stat {
+  background: rgba(9, 21, 37, 0.82);
+  border-color: rgba(69, 217, 255, 0.18);
+}
+
+.game-stat:hover {
+  border-color: rgba(184, 242, 62, 0.65);
+  box-shadow: 0 0 0 3px rgba(184, 242, 62, 0.08);
 }
 
 .game-stat > div { min-width: 0; }
@@ -137,27 +197,27 @@ body {
 }
 
 /* Dashboard cards: dark, high-contrast surfaces override legacy light cards without touching forms/modals. */
-.dashboard-shell main .bg-white,
-.dashboard-shell main .dark\:bg-slate-900 {
+html.dark .dashboard-shell main .bg-white,
+html.dark .dashboard-shell main .dark\:bg-slate-900 {
   background-color: #101d30;
   border-color: rgba(69, 217, 255, 0.22);
 }
 
-.dashboard-shell main .bg-slate-50,
-.dashboard-shell main .dark\:bg-slate-950\/50 {
+html.dark .dashboard-shell main .bg-slate-50,
+html.dark .dashboard-shell main .dark\:bg-slate-950\/50 {
   background-color: #0b1627;
   border-color: rgba(69, 217, 255, 0.16);
 }
 
-.dashboard-shell main .text-slate-900,
-.dashboard-shell main .dark\:text-white { color: #f5f7eb; }
-.dashboard-shell main .text-slate-600,
-.dashboard-shell main .text-slate-500,
-.dashboard-shell main .dark\:text-slate-400,
-.dashboard-shell main .dark\:text-slate-300 { color: #b8c6d8; }
+html.dark .dashboard-shell main .text-slate-900,
+html.dark .dashboard-shell main .dark\:text-white { color: #f5f7eb; }
+html.dark .dashboard-shell main .text-slate-600,
+html.dark .dashboard-shell main .text-slate-500,
+html.dark .dashboard-shell main .dark\:text-slate-400,
+html.dark .dashboard-shell main .dark\:text-slate-300 { color: #b8c6d8; }
 
-.dashboard-shell main [class*="rounded-3xl"],
-.dashboard-shell main [class*="rounded-[2rem]"] {
+html.dark .dashboard-shell main [class*="rounded-3xl"],
+html.dark .dashboard-shell main [class*="rounded-[2rem]"] {
   border-radius: 0.3rem;
   box-shadow: 5px 5px 0 rgba(4, 9, 17, 0.72);
 }

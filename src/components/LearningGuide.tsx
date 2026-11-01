@@ -15,6 +15,13 @@ const loop = [
   ['Mejorar', '10', 'No conformidad, causa raíz, acción correctiva y aprendizaje.']
 ];
 
+const outcomeSteps = [
+  ['Diagnóstico', 'Empieza por contexto, partes interesadas y alcance. No actives controles sin justificar el aspecto que atienden.', 'Evidencia: alcance del SGA y matriz inicial.'],
+  ['Priorización', 'Valora cada aspecto por severidad, frecuencia, requisito legal y perspectiva de ciclo de vida.', 'Evidencia: matriz de aspectos con significancia explicada.'],
+  ['Control', 'Relaciona cada obligación y objetivo con una barrera operativa, responsable, recurso e indicador.', 'Evidencia: programa ambiental y control operacional.'],
+  ['Auditoría', 'Comprueba resultados, registra hallazgos, analiza causa raíz y deja una acción verificable.', 'Evidencia: auditoría interna y acción correctiva cerrada.']
+];
+
 const method = [
   ['01', 'ASPECTO', '¿Qué actividad genera la interacción?'], ['02', 'IMPACTO', '¿Qué puede cambiar en el ambiente?'], ['03', 'RIESGO', '¿Qué tan grave y probable es?'], ['04', 'CONTROL', '¿Qué barrera lo reduce?'], ['05', 'INDICADOR', '¿Cómo sabrás que funciona?'], ['06', 'EVIDENCIA', '¿Qué registro presentas?']
 ];
@@ -23,7 +30,7 @@ export default function LearningGuide() {
   const [activeOutcome, setActiveOutcome] = useState(0);
   return (
     <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]" aria-labelledby="learning-guide-title">
-      <div className="relative overflow-hidden border border-cyan-300/20 bg-[#101d30] p-5 shadow-[6px_6px_0_rgba(4,9,17,0.7)] md:p-6">
+      <div className="relative min-w-0 overflow-hidden border border-cyan-300/20 bg-[#101d30] p-5 shadow-[6px_6px_0_rgba(4,9,17,0.7)] md:p-6">
         <div className="absolute right-5 top-5 font-mono text-5xl font-black text-white/[0.04]">LAB</div>
         <div className="relative flex items-start gap-3">
           <span className="grid size-11 shrink-0 place-items-center border border-lime-300/60 bg-lime-300 text-slate-950 shadow-[4px_4px_0_rgba(213,255,69,0.18)]"><BookOpen className="size-5" aria-hidden="true" /></span>
@@ -31,6 +38,12 @@ export default function LearningGuide() {
         </div>
         <div className="mt-6 grid gap-2 sm:grid-cols-2">
           {outcomes.map((outcome, index) => <button key={outcome} type="button" onClick={() => setActiveOutcome(index)} aria-pressed={activeOutcome === index} className={`flex gap-3 border p-3 text-left text-xs leading-5 transition-all duration-200 ${activeOutcome === index ? 'border-lime-300/60 bg-lime-300/10 text-white shadow-[3px_3px_0_rgba(213,255,69,0.12)]' : 'border-white/10 bg-white/[0.03] text-slate-400 hover:border-cyan-300/40 hover:text-slate-200'}`}><span className={`font-mono text-[10px] font-black ${activeOutcome === index ? 'text-lime-300' : 'text-slate-600'}`}>0{index + 1}</span><span>{outcome}</span></button>)}
+        </div>
+        <div className="mt-4 border-l-2 border-lime-300/70 bg-lime-300/[0.06] p-4" aria-live="polite">
+          <div className="flex flex-wrap items-center justify-between gap-2"><span className="hud-label text-[10px] font-black text-lime-300">Next checkpoint / {String(activeOutcome + 1).padStart(2, '0')}</span><span className="font-mono text-[10px] text-slate-400">guía activa</span></div>
+          <p className="mt-2 text-sm font-bold text-white">{outcomeSteps[activeOutcome][0]}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-300">{outcomeSteps[activeOutcome][1]}</p>
+          <p className="mt-2 font-mono text-[10px] font-bold text-cyan-200">{outcomeSteps[activeOutcome][2]}</p>
         </div>
       </div>
 

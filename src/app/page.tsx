@@ -213,38 +213,38 @@ export default function GameMain() {
             </span>
           </button>
           {/* Week counter */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Calendar className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Turno / Tiempo</span>
-              <span className="text-xs font-black">Semana {week} / 52</span>
+              <span className="max-w-full truncate whitespace-nowrap text-xs font-black">Semana {week} / 52</span>
             </div>
           </div>
 
           {/* Budget */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Coins className="w-4 h-4 text-amber-500" />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Presupuesto</span>
-              <span className="text-xs font-black">${budget.toLocaleString('es-ES')}</span>
+              <span className="max-w-full truncate whitespace-nowrap text-xs font-black">${budget.toLocaleString('es-ES')}</span>
             </div>
           </div>
 
           {/* Legal Compliance */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <Scale className="w-4 h-4 text-blue-500" />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Cumplimiento Legal</span>
-              <span className="text-xs font-black text-blue-500">{legalCompliance}%</span>
+              <span className="max-w-full truncate whitespace-nowrap text-xs font-black text-blue-500">{legalCompliance}%</span>
             </div>
           </div>
 
           {/* Environmental Score */}
-          <div className="flex items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
+          <div className="game-stat flex min-w-0 max-w-full items-center gap-2.5 bg-slate-100/50 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-800 px-3.5 py-2 rounded-2xl">
             <ShieldCheck className={`w-4 h-4 ${theme.text}`} />
             <div className="flex flex-col">
               <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Score Ambiental</span>
-              <span className={`text-xs font-black ${theme.text}`}>{environmentalScore}%</span>
+              <span className={`max-w-full truncate whitespace-nowrap text-xs font-black ${theme.text}`}>{environmentalScore}%</span>
             </div>
           </div>
 

@@ -72,6 +72,22 @@ body {
   --shell-border: rgba(69, 217, 255, 0.2);
   background: #08111f;
   color: #f5f7eb;
+  overflow-x: clip;
+}
+
+.game-stat {
+  flex: 1 1 9rem;
+}
+
+.game-stat > div { min-width: 0; }
+.game-stat svg { flex: 0 0 auto; }
+
+@media (max-width: 900px) {
+  .game-stat { flex-basis: calc(50% - 0.5rem); }
+}
+
+@media (max-width: 640px) {
+  .game-stat { flex-basis: 100%; }
 }
 
 .hud-panel {

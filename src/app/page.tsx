@@ -180,10 +180,10 @@ export default function GameMain() {
   ];
 
   return (
-    <div data-font-scale={fontScale} className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div data-font-scale={fontScale} className="dashboard-shell min-h-screen flex flex-col transition-colors duration-200">
       {showSplash && <BrandSplash onComplete={handleSplashComplete} />}
       {/* Top Navigation Bar */}
-      <header className="border-b border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <header className="sticky top-0 z-30 flex flex-col items-center justify-between gap-4 border-b-2 border-cyan-400/30 bg-[#08111f]/95 px-5 py-4 font-mono backdrop-blur-md sm:flex-row lg:px-7">
         <div className="flex items-center justify-between w-full sm:w-auto">
           <Logo />
           <button 
@@ -287,10 +287,10 @@ export default function GameMain() {
       {/* Main Body */}
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Sidebar Left Menu */}
-        <aside className="w-full md:w-64 border-r border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900 p-5 flex flex-col justify-between gap-6">
+        <aside className="hud-grid w-full border-r-2 border-cyan-400/20 bg-[#0b1627] p-5 flex flex-col justify-between gap-6 md:w-72">
           <div className="flex flex-col gap-5">
             {/* Multi-company Selector */}
-            <div className="flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+            <div className="hud-panel hud-corner flex flex-col gap-2 p-3">
               <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
                 Empresa a Certificar
               </span>
@@ -317,6 +317,7 @@ export default function GameMain() {
             
             <nav className="flex flex-col gap-1 text-xs">
               <button
+                data-active={activeTab === 'dashboard'}
                 onClick={() => setActiveTab('dashboard')}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'dashboard'
@@ -328,6 +329,7 @@ export default function GameMain() {
               </button>
 
               <button
+                data-active={activeTab === 'map'}
                 onClick={() => setActiveTab('map')}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'map'
@@ -339,6 +341,7 @@ export default function GameMain() {
               </button>
 
               <button
+                data-active={activeTab === 'iso'}
                 onClick={() => setActiveTab('iso')}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'iso'
@@ -350,6 +353,7 @@ export default function GameMain() {
               </button>
 
               <button
+                data-active={activeTab === 'docs'}
                 onClick={() => setActiveTab('docs')}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'docs'
@@ -361,6 +365,7 @@ export default function GameMain() {
               </button>
 
               <button
+                data-active={activeTab === 'ai'}
                 onClick={() => setActiveTab('ai')}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'ai'
@@ -372,6 +377,7 @@ export default function GameMain() {
               </button>
 
               <button
+                data-active={activeTab === 'audit'}
                 onClick={() => setActiveTab('audit')}
                 className={`flex items-center justify-between p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'audit'
@@ -386,6 +392,7 @@ export default function GameMain() {
               </button>
 
               <button
+                data-active={activeTab === 'profile'}
                 onClick={() => setActiveTab('profile')}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left font-bold transition-all ${
                   activeTab === 'profile'
@@ -399,7 +406,7 @@ export default function GameMain() {
           </div>
 
           {/* Level and XP progress panel */}
-          <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 p-4 rounded-2xl flex flex-col gap-3">
+          <div className="hud-panel hud-corner p-4 flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">Progreso Global</span>
               <span className={`text-[10px] font-bold ${theme.text} uppercase tracking-widest ${theme.bgLight} px-1.5 py-0.5 rounded`}>Nivel {level}</span>
@@ -441,10 +448,10 @@ export default function GameMain() {
         </aside>
 
         {/* Content area */}
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-8 overflow-y-auto max-h-[calc(100vh-80px)]">
+        <main className="hud-grid flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 flex flex-col gap-8 max-h-[calc(100vh-80px)]">
           {activeTab === 'dashboard' && (
             <div className="flex flex-col gap-6">
-              <section className="relative overflow-hidden rounded-[2rem] border border-emerald-200 bg-emerald-950 p-6 text-white shadow-xl shadow-emerald-950/10 md:p-7" aria-labelledby="mission-title">
+              <section className="hud-corner relative overflow-hidden border-2 border-lime-300/50 bg-[#102d2d] p-6 text-white shadow-[8px_8px_0_rgba(213,255,69,0.12)] md:p-8" aria-labelledby="mission-title">
                 <div className="absolute -right-12 -top-16 h-44 w-44 rounded-full border-[22px] border-lime-300/70" aria-hidden="true" />
                 <div className="absolute bottom-5 right-28 h-5 w-5 rotate-45 bg-[var(--color-coral)]" aria-hidden="true" />
                 <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
@@ -548,7 +555,7 @@ export default function GameMain() {
                 </div>
 
                 {/* News & incident feed */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 flex flex-col gap-4">
+                <div className="hud-panel hud-corner p-5 flex flex-col gap-4">
                   <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm flex items-center gap-2">
                     <TrendingUp className={`w-4.5 h-4.5 ${theme.text}`} /> Bitácora de Eventos e Infracciones
                   </h3>

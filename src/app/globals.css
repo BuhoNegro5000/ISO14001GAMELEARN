@@ -13,14 +13,17 @@
 }
 
 :root {
-  --background: #f7f8ee;
-  --foreground: #12352a;
+  --background: #08111f;
+  --foreground: #f5f7eb;
   --font-sans: var(--font-geist-sans), Arial, sans-serif;
-  --color-ink: #12352a;
-  --color-paper: #f7f8ee;
-  --color-leaf: #176b4d;
-  --color-lime: #b9ee57;
-  --color-coral: #ff795d;
+  --color-ink: #08111f;
+  --color-paper: #f5f7eb;
+  --color-leaf: #b8f23e;
+  --color-lime: #d5ff45;
+  --color-coral: #ff5b4d;
+  --color-electric: #45d9ff;
+  --color-panel: #101d30;
+  --color-panel-deep: #0b1627;
 }
 
 html { background: var(--background); }
@@ -61,13 +64,82 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   background-attachment: fixed;
-  background-image: linear-gradient(135deg, rgba(185, 238, 87, 0.08) 25%, transparent 25%), linear-gradient(315deg, rgba(255, 121, 93, 0.06) 25%, transparent 25%);
-  background-size: 42px 42px;
+  background-image: linear-gradient(rgba(69, 217, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(69, 217, 255, 0.035) 1px, transparent 1px), radial-gradient(circle at 76% 8%, rgba(213, 255, 69, 0.08), transparent 28rem);
+  background-size: 32px 32px, 32px 32px, auto;
 }
 
+.dashboard-shell {
+  --shell-border: rgba(69, 217, 255, 0.2);
+  background: #08111f;
+  color: #f5f7eb;
+}
+
+.hud-panel {
+  background: #101d30;
+  border: 1px solid var(--shell-border);
+  box-shadow: 6px 6px 0 rgba(4, 9, 17, 0.7);
+}
+
+.hud-label {
+  font-family: var(--font-geist-mono), monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hud-grid {
+  background-image: linear-gradient(rgba(69, 217, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(69, 217, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.hud-nav-item {
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  letter-spacing: 0.02em;
+}
+
+.hud-nav-item[data-active="true"] {
+  border-color: rgba(213, 255, 69, 0.72);
+  box-shadow: 4px 4px 0 rgba(213, 255, 69, 0.14);
+}
+
+.dashboard-shell aside nav button {
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  color: #a8b6ca;
+  letter-spacing: 0.03em;
+}
+
+.dashboard-shell aside nav button:hover {
+  border-color: rgba(69, 217, 255, 0.45);
+  color: #f5f7eb;
+  background: rgba(69, 217, 255, 0.08);
+}
+
+.dashboard-shell aside nav button[class*="text-white"] {
+  border-color: rgba(213, 255, 69, 0.72);
+  box-shadow: 4px 4px 0 rgba(213, 255, 69, 0.14);
+}
+
+.hud-corner {
+  position: relative;
+}
+
+.hud-corner::before,
+.hud-corner::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--color-lime);
+  pointer-events: none;
+}
+
+.hud-corner::before { left: -1px; top: -1px; border-left: 2px solid; border-top: 2px solid; }
+.hud-corner::after { right: -1px; bottom: -1px; border-right: 2px solid; border-bottom: 2px solid; }
+
 .dark body {
-  background-image: radial-gradient(circle at 10% 20%, rgba(15, 23, 42, 0.45) 0%, transparent 45%),
-                    radial-gradient(circle at 90% 80%, rgba(15, 23, 42, 0.6) 0%, transparent 45%);
+  background-image: linear-gradient(rgba(69, 217, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(69, 217, 255, 0.04) 1px, transparent 1px), radial-gradient(circle at 76% 8%, rgba(213, 255, 69, 0.1), transparent 30rem);
+  background-size: 32px 32px, 32px 32px, auto;
 }
 
 /* Glassmorphism Panels */

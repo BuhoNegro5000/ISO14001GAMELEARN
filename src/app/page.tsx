@@ -676,7 +676,7 @@ export default function GameMain() {
         <ProfileSetup
           initial={profile}
           onSaved={() => setShowProfile(false)}
-          onClose={profile ? () => setShowProfile(false) : undefined}
+          onClose={() => setShowProfile(false)}
         />
       )}
 
